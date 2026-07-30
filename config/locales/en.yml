@@ -1,0 +1,48 @@
+# Every user-visible string lives here (CLAUDE.md rule 4). Zero hardcoded
+# English in views, controllers, or mailers. A content locale is a sibling
+# Lesson row — this file is only for UI chrome.
+en:
+  app_name: "Arête"
+
+  errors:
+    not_authorized: "You are not allowed to do that."
+
+  dashboard:
+    show:
+      title: "Dashboard"
+      welcome: "Welcome to %{app_name}."
+      signed_in_as: "Signed in as %{email}"
+      sign_out: "Sign out"
+
+  sessions:
+    rate_limited: "Try again later."
+    invalid_credentials: "Try another email address or password."
+    new:
+      title: "Sign in"
+      email_placeholder: "Enter your email address"
+      password_placeholder: "Enter your password"
+      submit: "Sign in"
+      forgot_password: "Forgot password?"
+
+  passwords:
+    rate_limited: "Try again later."
+    reset_sent: "Password reset instructions sent (if user with that email address exists)."
+    reset_done: "Password has been reset."
+    mismatch: "Passwords did not match."
+    invalid_token: "Password reset link is invalid or has expired."
+    new:
+      title: "Forgot your password?"
+      email_placeholder: "Enter your email address"
+      submit: "Email reset instructions"
+    edit:
+      title: "Update your password"
+      password_placeholder: "Enter new password"
+      password_confirmation_placeholder: "Repeat new password"
+      submit: "Save"
+
+  passwords_mailer:
+    reset:
+      subject: "Reset your password"
+      intro: "You can reset your password on"
+      link_text: "this password reset page"
+      expiry: "This link will expire in %{expires_in}."

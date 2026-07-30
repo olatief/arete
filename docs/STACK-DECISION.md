@@ -25,7 +25,7 @@
 | Layer | Choice | Version (checked July 2026) | Notes |
 |---|---|---|---|
 | Framework | **Rails 8.1.3**, **Ruby 4.0.6** | Rails 8.1.3 (2026‑03‑24) | Pin Ruby 4.0.6 (current). *(Revised from 3.4.10 — decision taken to build on Ruby 4; some gems' compatibility matrices may lag, so verify at bundle install.)* |
-| Database | **PostgreSQL 16/17** | — | One database for app data, jobs, cache, and websocket pub/sub. |
+| Database | **PostgreSQL 18** | 18.4 | One database for app data, jobs, cache, and websocket pub/sub. Pinned in `render.yaml` (`postgresMajorVersion: "18"`) and CI (`postgres:18`). |
 | Jobs / cache | **Solid Queue** (Puma plugin) **+ Solid Cache** | Rails 8 defaults | No Redis. Solid Queue in-process keeps you to a single web service. |
 | **Websocket pub/sub** | **ActionCable `postgresql` adapter** — *not* Solid Cable | Rails 8.1.3 built-in | See §4. This is a change from revision 1 and it matters. |
 | Auth | `bin/rails generate authentication` | Rails 8.0+ | Also generates a `connection.rb` for ActionCable that works out of the box. Add invitations yourself (one model, one mailer). |

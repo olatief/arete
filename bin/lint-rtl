@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Fails on physical (LTR-only) Tailwind utilities in app/ — use logical
+# properties instead: ms-/me- not ml-/mr-, ps-/pe- not pl-/pr-, start-/end-
+# not left-/right-, text-start/text-end not text-left/text-right, and the
+# logical variants of border-/rounded-/inset-/divide-/space-/float-.
+# A deliberate physical use gets an inline `rtl-ok` comment on the same line.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+patterns=(
+  '\b-?[mp][lr]-'
+  '\b(left|right)-'
+  '\btext-(left|right)\b'
+  '\b(border|rounded|float|divide|space|inset)-(x-|[lr]\b|t[lr]\b|b[lr]\b)'
+)
+
+status=0
+for pattern in "${patterns[@]}"; do
+  # -I skips binary files; hits annotated rtl-ok on the same line are allowed.
+  hits=$(grep -RInIE --exclude-dir=builds --include='*.erb' --include='*.html' --include='*.css' --include='*.js' --include='*.rb' "$pattern" app/ 2>/dev/null | grep -v 'rtl-ok' || true)
+  if [ -n "$hits" ]; then
+    echo "Directional CSS utility found (pattern: $pattern) — use logical properties (ms-/pe-/start-…) or annotate with rtl-ok:"
+    echo "$hits"
+    status=1
+  fi
+done
+
+if [ "$status" -eq 0 ]; then
+  echo "lint-rtl: OK"
+fi
+exit "$status"

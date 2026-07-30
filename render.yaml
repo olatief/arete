@@ -1,0 +1,37 @@
+# Render blueprint: one web service + one Postgres, both in Frankfurt.
+#
+# IMPORTANT: the app must connect to Postgres directly on 5432. Never enable
+# Render's connection pooler (PgBouncer transaction mode) on this database —
+# ActionCable's postgresql adapter needs LISTEN, which requires a
+# session-pinned connection. `connectionString` below is the direct URL.
+databases:
+  - name: arete-db
+    plan: basic-1gb
+    region: frankfurt
+    postgresMajorVersion: "18"
+
+services:
+  - type: web
+    name: arete
+    runtime: ruby
+    plan: starter
+    region: frankfurt
+    buildCommand: bundle install && bin/rails assets:precompile
+    preDeployCommand: bin/rails db:migrate
+    startCommand: bundle exec thrust bin/rails server
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false # set in the Render dashboard
+      - key: RAILS_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: arete-db
+          property: connectionString
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "true"
+      # 2+ workers on purpose: a per-process cable adapter bug (async/memory
+      # store) must surface, not hide behind a single worker.
+      - key: WEB_CONCURRENCY
+        value: "2"

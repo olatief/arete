@@ -92,8 +92,8 @@ Add a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs
 
 ## 7. Deploy to Render Frankfurt
 
-- `render.yaml`: one web service (Starter, Frankfurt), one Postgres (Basic-1GB,
-  Frankfurt). Health check path `/up`.
+- `render.yaml`: one web service (Starter, Frankfurt), one Postgres 18 (Basic-1GB,
+  Frankfurt — `postgresMajorVersion: "18"`). Health check path `/up`.
 - **Do not enable Render's connection pooler** — connect on 5432. `LISTEN/NOTIFY`
   (the cable adapter) breaks under PgBouncer transaction mode.
 - `RAILS_MASTER_KEY`, `DATABASE_URL` env wiring; migrations in the pre-deploy or

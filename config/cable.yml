@@ -1,0 +1,12 @@
+# ActionCable rides Postgres LISTEN/NOTIFY in development AND production.
+# Never `async` (per-process — silently breaks board/phone sync under 2+ Puma
+# workers) and never Solid Cable. The cable's connection must not go through
+# PgBouncer/transaction pooling — LISTEN needs a session-pinned connection.
+development:
+  adapter: postgresql
+
+test:
+  adapter: test
+
+production:
+  adapter: postgresql

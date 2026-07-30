@@ -1,0 +1,12 @@
+<div class="mx-auto md:w-2/3 w-full">
+  <% if notice = flash[:notice] %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <h1 class="font-bold text-4xl"><%= t(".title") %></h1>
+
+  <p class="mt-6 text-gray-700"><%= t(".welcome", app_name: t("app_name")) %></p>
+  <p class="mt-2 text-sm text-gray-500"><%= t(".signed_in_as", email: Current.user.email_address) %></p>
+
+  <%= button_to t(".sign_out"), session_path, method: :delete, class: "mt-8 rounded-md px-3.5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium cursor-pointer" %>
+</div>

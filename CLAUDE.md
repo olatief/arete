@@ -30,7 +30,7 @@ architectural changes.
 
 ## Stack (pinned)
 
-- Rails 8.1.3, Ruby 4.0.6
+- Rails 8.1.3, Ruby 4.0.6, PostgreSQL 18
 - PostgreSQL only: app data, Solid Queue jobs (in Puma), Solid Cache, and
   ActionCable pub/sub
 - ActionCable `postgresql` adapter (LISTEN/NOTIFY) — **not** Solid Cable, **not**
