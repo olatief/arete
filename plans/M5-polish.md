@@ -10,8 +10,10 @@ The brief lists "a printed sheet" as a valid teacher surface; it's the insurance
 against a dead projector *and* a dead phone.
 
 - `GET /lessons/:id/print` (authenticated, published-only via policy): one page
-  per slide — thumbnail, page number, notes — preceded by title, prime, and close
-  prompt.
+  per slide — thumbnail, page number, `Slide#title` and "≈ Nm" from
+  `Slide#suggested_seconds` (both lines collapse when nil), notes — preceded by
+  lesson title, prime, and close prompt. `**…**` stage directions render bold
+  (matches the print wireframe, which shows both).
 - `@media print` styles: hide chrome, `break-inside: avoid` per slide block,
   black-on-white. A "Print" button on the lesson page.
 - Logical properties still apply (rule 3) — print CSS is not exempt.
@@ -26,15 +28,33 @@ one mailer on top:
   super_admins invite school_admins (Pundit-enforced).
 - Mailer with an accept link (signed token, 7-day expiry) → set-password form →
   creates the `User` with the invitation's school + role, marks accepted.
+- The accept screen **shows the school name and role being accepted** (UX-SPEC
+  view 4) — it's the only moment a teacher ever sees their role spelled out, and
+  the last moment a wrong invitation can be stopped without a support ticket.
 - Tests: expired/reused token rejected; role/school escalation impossible (a
-  school_admin cannot mint a super_admin).
+  school_admin cannot mint a super_admin); accept page displays the invitation's
+  school + role.
+
+## 2b. My lessons (`/my`)
+
+The second (and last) teacher nav item, derived rather than curated:
+
+- Recently-taught list from retained paired TeachSessions — `TeachSession.taught`
+  scope, distinct lessons ordered by `last_seen_at` desc — plus the "Continue"
+  row on the library home. Policy-scoped to the current teacher.
+- Empty state: "Lessons you teach will appear here."
+- **No saved/bookmark feature** — that's phase 2 (UX-SPEC §2.6). Teacher-only
+  behavioural data, consistent with the PDPL posture (UX-SPEC §5.8).
 
 ## 3. Empty states
 
 Every list needs a considered empty state, they are the first thing the Mīzān
 team sees: library with no published lessons, search with no results, lesson with
 no materials, notes table before first deck upload ("Upload a deck to create
-slides"), board waiting-to-pair screen. All strings in `en.yml`.
+slides"), board waiting-to-pair screen, My lessons before first teach. The
+session-ended state says **"The board is showing a new pairing code."** — end of
+session auto-issues a fresh code (M4); no copy may tell the teacher to refresh
+anything. All strings in `en.yml`.
 
 ## 4. Storage + infrastructure
 
@@ -64,6 +84,9 @@ Some exist from M3/M4; make sure ALL of these are green and in CI:
 7. Draft lessons invisible to teachers everywhere (library, search, print, teach).
 8. Invitation lifecycle (accept, expire, no escalation).
 9. `bin/lint-rtl` green over the entire final codebase.
+10. Board holding survives reconnect — a board that reconnects pre-Start shows
+    the holding screen, never leaks slide 1 early.
+11. An ended board auto-issues a usable new code (redeemable, drives a session).
 
 ## 6. Pre-launch checklist (not code)
 
@@ -84,4 +107,4 @@ Some exist from M3/M4; make sure ALL of these are green and in CI:
 - [ ] A school_admin can invite a teacher end-to-end on production.
 - [ ] Slide images verifiably served from the Cloudflare/R2 domain in production.
 - [ ] A production `pg_dump` restore has been performed once, successfully.
-- [ ] Full CI suite green; the nine verification tests all present and passing.
+- [ ] Full CI suite green; the eleven verification tests all present and passing.

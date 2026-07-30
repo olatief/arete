@@ -33,6 +33,11 @@ requirement a laptop on your own network cannot validate.
   4. Broadcast a `paired` event to the session's stream; redirect the phone to
      `/teach_sessions/:id/companion`.
 - On failure: generic "code not found or expired" (don't distinguish — no oracle).
+- **On pair the board shows the holding screen (wordmark), not slide 1** —
+  `started_at` is nil until the phone's pre-flight **Start** button fires
+  `PATCH /teach_sessions/:id/start`, which sets `started_at` and broadcasts
+  `{ started: true }`; only then does the board show `current_page`. Starting the
+  lesson is a deliberate act (UX-SPEC §5.3).
 
 ### Rate limiting — two axes, stacked
 
@@ -96,11 +101,18 @@ Rules (each is a known vulnerability class — see stack decision §4):
   a stack of `<img>` (full 1920×1080 variants) toggled by a CSS class. Advancing
   is a class toggle — no fetch, no render, no flash. A dropped websocket never
   blanks the projector; it just stays on the current slide.
+- Board state machine: **waiting → holding → teaching → ended → waiting (auto,
+  new code)**. On the `ended` broadcast the board requests a fresh session/code
+  itself and re-renders the waiting screen — the teacher never walks to the PC
+  and never refreshes anything.
 - Stimulus `board_controller`:
-  - subscribes with the token; `received({ page }) → show(page)`.
+  - subscribes with the token; `received({ page }) → show(page)`; `{ started: }`
+    and `{ ended: }` drive the state machine above.
   - `connected({ reconnected }) { if (reconnected) this.resync() }` where
-    `resync()` fetches `current_page` from a tiny JSON endpoint (signed-cookie
-    authorized) and shows it.
+    `resync()` fetches `{ page, started, ended }` from a tiny JSON endpoint
+    (signed-cookie authorized) and re-enters the matching state — a board that
+    reconnects during pre-flight lands on **holding**, never prematurely on
+    slide 1 (regression test 9 below).
   - **Keyboard nav** ←/→/space/Esc that PATCHes the page (board-cookie-authorized
     variant of the update endpoint) — if the phone dies, the teacher walks to the
     PC and keeps going.
@@ -125,14 +137,33 @@ Rules (each is a known vulnerability class — see stack decision §4):
     ActionCable's client has no online/offline handling; wifi→cellular with the
     screen on is otherwise only caught by the 6s stale threshold.
   - Same `connected({ reconnected }) → resync()` re-read of `current_page`.
+- **Screen Wake Lock** (UX-SPEC §5.1 — it belongs here, not in a polish pass):
+  `navigator.wakeLock.request("screen")` while the session is active; the lock
+  drops whenever the tab hides, so re-request on `visibilitychange`; show an
+  "awake" indicator in the header so the teacher trusts it; fall back silently
+  where unsupported.
+- **Per-slide timer**: elapsed, reset on every advance; target from
+  `Slide#suggested_seconds`, rendered `02:30 / 03:00`, muted, never red;
+  elapsed-only when the slide has no target.
+- **Slide title + next-slide preview** from `Slide#title`, one line of text each
+  (fallback: "Slide N" when nil) — rendered server-side with the notes.
+- **End confirmation**: an in-page Turbo confirm ("End lesson? The board will
+  clear."), never `window.confirm`. **Offline reconciliation rule**: while
+  disconnected, Prev/Next is script-browsing only ("Read ahead") — it never
+  claims to move the board; on reconnect, resync to the server's `current_page`
+  (what the class actually saw) with a brief "back on slide N" notice.
 - Expect hard disconnects on iOS lock (WebKit suspends websockets) — the
   indicator + resync handles it; the board (screen on) stays up.
 
 ## 6. Session lifecycle
 
-- "End session" on the phone → sets `expires_at: Time.current`, broadcasts
-  `{ ended: true }` (still no content); board returns to the pairing screen.
-- Sweep job (Solid Queue recurring): delete expired, never-paired sessions.
+- "End session" on the phone (after the Turbo confirm) → sets `ended_at` and
+  `expires_at: Time.current`, broadcasts `{ ended: true }` (still no content);
+  the board auto-issues itself a fresh session/code and shows the waiting screen.
+- Sweep job (Solid Queue recurring): **delete only expired, never-paired
+  sessions.** Paired rows are retained as teaching history — they are the data
+  source for M5's "My lessons" (`TeachSession.taught`). Teacher-only behavioural
+  data; no student anything.
 - Dual display needs nothing: the teacher's own laptop opening `/board` and
   pairing is the identical code path.
 
@@ -156,13 +187,19 @@ System tests (two Capybara sessions where needed):
 7. Rate limit: 6th pair attempt in a minute → 429.
 8. Authorization: a different logged-in teacher cannot PATCH someone else's
    session.
+9. **Board reconnecting during pre-flight shows holding, not slide 1** (resync
+   returns `started: false` → holding screen).
+10. End requires confirmation; after end, the board shows a fresh, working
+    pairing code (redeemable, drives a new session).
+11. (manual) Wake lock holds through a 2-minute idle on a real phone.
 
 ## Acceptance checks
 
 - [ ] Full flow works with a laptop (board) + phone (companion) on the same wifi.
-- [ ] All eight tests above green in CI.
+- [ ] Tests 1–10 above green in CI (11 is manual).
 - [ ] Payload audit: grep the channel/broadcast code path — the only broadcast
-      shapes are `{page:}`, `{paired:}`-style signals, `{ended:}`. No content.
+      shapes are `{page:}`, `{paired:}`, `{started:}`, `{ended:}`. No content,
+      ever.
 - [ ] Manual: lock the phone mid-lesson, unlock → indicator recovers, page
       resyncs within ~1s.
 - [ ] **Field test on actual classroom wifi scheduled** — this milestone is not

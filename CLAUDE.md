@@ -54,10 +54,12 @@ Unit         track_id, grade (int, K=0), title, position
 Lesson       unit_id, position, code, locale (en|ar), title, prime,
              close_prompt, estimated_minutes, tags text[], published_at
              UNIQUE (code, locale) · has_one_attached :deck · has_many_attached :materials
-Slide        lesson_id, page_number (1-based, IS the ordering), notes
+Slide        lesson_id, page_number (1-based, IS the ordering), title,
+             suggested_seconds, notes
              UNIQUE (lesson_id, page_number) · has_one_attached :image
 TeachSession lesson_id?, teacher_id?, pairing_code (nulled on pair),
-             current_page (default 1), paired_at, expires_at, last_seen_at
+             current_page (default 1), paired_at, started_at, ended_at,
+             expires_at, last_seen_at
 
 School       name, country, timezone
 User         school_id (nullable — super_admins have none), email,
@@ -67,8 +69,8 @@ User         school_id (nullable — super_admins have none), email,
 Invariants:
 - `page_number` **is** the ordering. No `position` column on slides, no reordering UI.
 - Deck re-ingest may delete/recreate `Slide` rows freely — nothing references them —
-  but must **preserve `notes` by page_number** so re-uploading a corrected PDF
-  doesn't wipe teacher scripts.
+  but must **preserve `notes`, `title`, and `suggested_seconds` by page_number** so
+  re-uploading a corrected PDF doesn't wipe teacher scripts.
 - `published_at: nil` = draft. `scope :published, -> { where.not(published_at: nil) }`.
   No status enum.
 - A locale is a sibling `Lesson` row sharing `code`. `UNIQUE (code, locale)` is the

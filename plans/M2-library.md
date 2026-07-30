@@ -45,19 +45,29 @@ Query params on the library index, combinable:
 - Filter form submits as GET (bookmarkable); use a Turbo Frame around the results
   so typing/filtering doesn't full-page reload.
 
-## 4. Lesson page (Mockup A in the product brief)
+## 4. Lesson page (UX-SPEC §4.1, view 10 — drawn in `docs/ux-wireframes.html`)
 
 Top to bottom:
 
 1. Breadcrumb `Track → Grade N → Unit → Lesson`.
-2. Title + chips (grade, estimated minutes, tags, locale).
+2. Title + chips (grade, estimated minutes rendered "≈ N min" — the exact value,
+   never a synthetic range — tags). The EN/AR locale switch sits here next to
+   Teach; there is **no locale chip in the appbar** (UX-SPEC decision — nothing
+   locale-shaped in the chrome).
 3. **Prime** block — the read-before-you-teach brief, visually distinct.
 4. Page thumbnails — grid of `Slide` images in `page_number` order (small variant
-   via `image.variant(resize_to_limit: [320, 180])`).
+   via `image.variant(resize_to_limit: [320, 180])`). **Clickable → slide preview
+   lightbox** (UX-SPEC view 11): slide large + `Slide#title` + its notes, prev/next
+   within the lightbox, Esc closes. Content is already on the page — no fetch.
 5. Materials — list of attached files, filename as label, download links.
 6. **Close prompt** block.
 7. **Teach** button — for M2 this links to a placeholder route (real flow is M4).
    Style it as primary; it is the whole point of the page.
+
+## 4b. Account settings (`/settings`)
+
+UX-SPEC view 13 puts this in M2: name, email, password, UI locale (`ui_locale`).
+Plain form, nothing clever — it exists so the appbar needs no locale chrome.
 
 ## 5. i18n + RTL discipline
 
@@ -78,5 +88,6 @@ Top to bottom:
 - [ ] Library and lesson page fully server-rendered, no custom JS beyond Turbo.
 - [ ] Draft lessons invisible to teachers, visible-with-badge to super_admins.
 - [ ] Search, tag filter, and grade filter work and combine; bookmarkable URLs.
-- [ ] Kindness · Grade 6 page matches Mockup A structure and looks presentable —
+- [ ] Kindness · Grade 6 page matches the UX-SPEC §4.1 lesson-page structure
+      (wireframe: "Lesson page") and looks presentable —
       this milestone ships to the Mīzān team for feedback.

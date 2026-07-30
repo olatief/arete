@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arête / Mīzān — UX Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Spectral:wght@300;400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  /* Light — the browse app. Parchment, drawn from the Mīzān brief. */
+  --bg:#FBF6EC; --surface:#FFFDF8; --surface-2:#F4EBDB; --surface-3:#EADEC8;
+  --border:#E3D7C2; --border-strong:#CFBFA3;
+  --ink:#2A2723; --ink-strong:#16304F; --ink-muted:#6E655A; --ink-faint:#9A9184;
+  --accent:#B5502E; --accent-hover:#95401F; --accent-soft:#F8E9E1; --on-accent:#FFFDF8;
+  --success:#2F6D4F; --success-soft:#E4F0E8;
+  --warning:#8A5E10; --warning-soft:#FAF0DA;
+  --danger:#A32C22;  --danger-soft:#FAE4E1;
+  --focus:#16304F;
+
+  --r-sm:4px; --r-md:8px; --r-lg:14px; --r-pill:999px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px;
+  --shadow-1:0 1px 2px rgba(42,39,35,.06);
+  --shadow-2:0 2px 8px rgba(42,39,35,.08), 0 1px 2px rgba(42,39,35,.05);
+  --shadow-3:0 8px 28px rgba(42,39,35,.12);
+
+  --font-display:"Fraunces",Georgia,serif;
+  --font-prose:"Spectral",Georgia,serif;
+  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+/* Dark — the companion + board chrome. Not a theme toggle: a different context. */
+.dark{
+  --bg:#14171C; --surface:#1C2027; --surface-2:#262B33; --surface-3:#323944;
+  --border:#333A45; --border-strong:#4A525F;
+  --ink:#E8E2D8; --ink-strong:#F5F1E9; --ink-muted:#9AA1AC; --ink-faint:#6F7783;
+  --accent:#E0784F; --accent-hover:#EE8B62; --accent-soft:#3A2820; --on-accent:#14171C;
+  --success:#5FB88A; --success-soft:#1E2E26;
+  --warning:#D9A441; --warning-soft:#2E2718;
+  --danger:#E2695C;  --danger-soft:#33201E;
+  --focus:#E0784F;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:#E8E0D2; color:var(--ink);
+  font-family:var(--font-ui); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+[dir="rtl"] .prose, [dir="rtl"] .ui{font-family:"Noto Naskh Arabic",var(--font-prose)}
+
+/* ============================================================
+   SHELL — the wireframe browser itself (not part of the product)
+   The shell (nav, toggles, notes) deliberately uses physical CSS
+   (float:right etc.): it is this document's chrome, never product
+   UI, and docs/ sits outside bin/lint-rtl's jurisdiction (the
+   linter greps app/ only). Everything inside a .frame — the
+   product mockups — uses logical properties and direction-aware
+   glyphs, because the frames are the living demo of the rule.
+   ============================================================ */
+.shell{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+.nav{
+  background:#1A1D23;color:#D8D2C6;padding:var(--sp-5) var(--sp-4);
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.nav h1{font-family:var(--font-display);font-size:19px;margin:0 0 2px;color:#fff;font-weight:600}
+.nav .sub{font-size:12px;color:#8A8578;margin-bottom:var(--sp-5);line-height:1.45}
+.nav-group{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:#7E7869;margin:var(--sp-5) 0 var(--sp-2);font-weight:600}
+.nav a{
+  display:block;padding:7px 10px;margin-bottom:1px;border-radius:var(--r-sm);
+  color:#C6C0B4;text-decoration:none;font-size:13.5px;cursor:pointer;
+}
+.nav a:hover{background:#262A31;color:#fff}
+.nav a.on{background:var(--accent);color:#fff}
+.nav a .tag{float:right;font-size:9.5px;opacity:.65;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+.toggles{display:flex;gap:6px;margin-bottom:var(--sp-4);flex-wrap:wrap}
+.toggles button{
+  flex:1;min-width:60px;background:#262A31;border:1px solid #363B44;color:#C6C0B4;
+  padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;font-size:11.5px;font-family:inherit;
+}
+.toggles button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.stage{padding:var(--sp-6);overflow-x:auto}
+.screen{display:none}
+.screen.on{display:block}
+.screen-head{max-width:1180px;margin:0 auto var(--sp-5)}
+.screen-head h2{font-family:var(--font-display);font-size:26px;margin:0 0 4px;color:#1A1D23;font-weight:600}
+.screen-head .meta{font-size:13px;color:#6B6458;line-height:1.6;max-width:760px}
+.screen-head .meta code{background:#DDD5C6;padding:1px 5px;border-radius:3px;font-family:var(--font-mono);font-size:11.5px}
+.note{
+  max-width:1180px;margin:var(--sp-5) auto 0;background:#FFFBF0;border:1px solid #E0D5BE;
+  border-inline-start:3px solid var(--accent);border-radius:var(--r-md);
+  padding:var(--sp-4) var(--sp-5);font-size:13.5px;color:#544C41;line-height:1.65;
+}
+.note strong{color:#1A1D23}
+.note ul{margin:8px 0 0;padding-inline-start:20px}
+.note li{margin-bottom:5px}
+
+/* Device frames */
+.frame{margin:0 auto;background:var(--bg);color:var(--ink);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-3);overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.frame-desktop{max-width:1180px}
+.frame-phone{max-width:390px;border-radius:26px;padding:0}
+.frame-board{max-width:1180px;aspect-ratio:16/9;border-radius:var(--r-md)}
+.frame-label{max-width:1180px;margin:0 auto 8px;font-size:11px;text-transform:uppercase;
+  letter-spacing:.08em;color:#6B6458;font-weight:600}
+.frame-phone + .frame-label,.frame-label.ctr{text-align:center;max-width:390px}
+
+/* ============================================================
+   PRODUCT COMPONENTS
+   ============================================================ */
+.appbar{
+  display:flex;align-items:center;gap:var(--sp-4);padding:0 var(--sp-5);height:58px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+}
+.brand{font-family:var(--font-display);font-weight:600;font-size:17px;color:var(--ink-strong);
+  letter-spacing:.01em;white-space:nowrap}
+.brand .dot{color:var(--accent)}
+.appnav{display:flex;gap:2px;margin-inline-start:var(--sp-4)}
+.appnav a{padding:6px 12px;border-radius:var(--r-sm);color:var(--ink-muted);
+  text-decoration:none;font-size:14px;font-weight:500}
+.appnav a.on{background:var(--surface-2);color:var(--ink-strong)}
+.spacer{flex:1}
+.avatar{width:32px;height:32px;border-radius:var(--r-pill);background:var(--surface-3);
+  display:grid;place-items:center;font-size:12.5px;font-weight:600;color:var(--ink-strong)}
+
+.pad{padding:var(--sp-6) var(--sp-5)}
+.wrap{max-width:900px;margin:0 auto}
+.wrap-wide{max-width:1080px;margin:0 auto}
+
+h3.sec{font-family:var(--font-display);font-size:22px;color:var(--ink-strong);
+  margin:0 0 var(--sp-4);font-weight:600}
+.eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent);font-weight:600;margin-bottom:6px}
+.crumb{font-size:12.5px;color:var(--ink-muted);margin-bottom:var(--sp-3);display:flex;
+  gap:7px;align-items:center;flex-wrap:wrap}
+.crumb .sep{color:var(--ink-faint)}
+/* Direction-aware glyphs — the design-system table's own rule, applied.
+   In Arabic "next" points left; chevrons flip with reading direction. */
+.crumb .sep::before{content:"›"}
+.tsep{color:var(--ink-faint)}
+.tsep::before{content:" › "}
+.gnext::before{content:"▶"}
+.gprev::before{content:"◀"}
+.gback::before{content:"←"}
+[dir="rtl"] .crumb .sep::before{content:"‹"}
+[dir="rtl"] .tsep::before{content:" ‹ "}
+[dir="rtl"] .gnext::before{content:"◀"}
+[dir="rtl"] .gprev::before{content:"▶"}
+[dir="rtl"] .gback::before{content:"→"}
+.crumb a{color:var(--ink-muted);text-decoration:none;border-bottom:1px solid transparent}
+.crumb a:hover{border-bottom-color:var(--ink-faint)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 16px;border-radius:var(--r-md);border:1px solid transparent;
+  font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;
+  background:var(--surface-2);color:var(--ink-strong);border-color:var(--border);
+}
+.btn:hover{background:var(--surface-3)}
+.btn-primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink-muted)}
+.btn-ghost:hover{background:var(--surface-2);color:var(--ink-strong)}
+.btn-danger{background:transparent;color:var(--danger);border-color:var(--danger)}
+.btn-lg{padding:14px 26px;font-size:16px;border-radius:var(--r-md)}
+.btn-teach{padding:15px 34px;font-size:17px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.chip{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-pill);
+  background:var(--surface-2);border:1px solid var(--border);
+  font-size:12px;color:var(--ink-muted);white-space:nowrap;
+}
+.chip-accent{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.chip-draft{background:var(--warning-soft);border-color:transparent;color:var(--warning);font-weight:600}
+.chip-live{background:var(--success-soft);border-color:transparent;color:var(--success);font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:var(--sp-5);box-shadow:var(--shadow-1)}
+.card-link{cursor:pointer;text-decoration:none;color:inherit;display:block}
+.card-link:hover{border-color:var(--accent);box-shadow:var(--shadow-2)}
+
+.prime{
+  background:var(--accent-soft);border:1px solid transparent;
+  border-inline-start:3px solid var(--accent);
+  border-radius:var(--r-md);padding:var(--sp-5);
+}
+.prime .eyebrow{margin-bottom:8px}
+.prime p{font-family:var(--font-prose);font-size:16.5px;line-height:1.7;margin:0;color:var(--ink)}
+.close-block{background:var(--surface-2);border-radius:var(--r-md);padding:var(--sp-5)}
+.close-block p{font-family:var(--font-prose);font-size:16.5px;line-height:1.7;margin:0;font-style:italic}
+
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--sp-3)}
+.thumb{aspect-ratio:16/9;background:var(--surface-3);border:1px solid var(--border);
+  border-radius:var(--r-sm);display:grid;place-items:center;position:relative;cursor:pointer;
+  font-size:11px;color:var(--ink-faint)}
+.thumb:hover{border-color:var(--accent)}
+.thumb .n{position:absolute;inset-block-start:5px;inset-inline-start:6px;
+  background:var(--surface);border-radius:3px;padding:0 5px;font-size:10.5px;
+  font-weight:600;color:var(--ink-muted)}
+
+.list{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
+.row{display:flex;align-items:center;gap:var(--sp-4);padding:13px var(--sp-4);
+  border-bottom:1px solid var(--border);text-decoration:none;color:inherit;cursor:pointer}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-2)}
+.row .idx{width:22px;font-size:12.5px;color:var(--ink-faint);flex-shrink:0;text-align:end;
+  font-variant-numeric:tabular-nums}
+.row .body{flex:1;min-width:0}
+.row .t{font-size:15px;color:var(--ink-strong);font-weight:500}
+.row .s{font-size:12.5px;color:var(--ink-muted);margin-top:2px}
+.row .end{flex-shrink:0;display:flex;gap:6px;align-items:center}
+
+.field{margin-bottom:var(--sp-4)}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-muted);margin-bottom:5px}
+.input,.textarea,.select{
+  width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r-md);
+  background:var(--surface);color:var(--ink);font-family:inherit;font-size:14.5px;
+}
+.textarea{font-family:var(--font-prose);line-height:1.6;resize:vertical;min-height:80px}
+.input:focus,.textarea:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:transparent}
+.hint{font-size:12px;color:var(--ink-faint);margin-top:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4)}
+
+.empty{text-align:center;padding:var(--sp-8) var(--sp-5);color:var(--ink-muted)}
+.empty .icon{font-size:30px;opacity:.35;margin-bottom:var(--sp-3)}
+.empty h4{font-family:var(--font-display);font-size:18px;color:var(--ink-strong);margin:0 0 6px;font-weight:600}
+.empty p{font-size:14px;margin:0 0 var(--sp-4);max-width:400px;margin-inline:auto}
+
+.banner{display:flex;gap:11px;align-items:flex-start;padding:12px var(--sp-4);
+  border-radius:var(--r-md);font-size:13.5px;line-height:1.55}
+.banner-info{background:var(--surface-2);color:var(--ink)}
+.banner-warn{background:var(--warning-soft);color:var(--warning)}
+.banner-ok{background:var(--success-soft);color:var(--success)}
+.banner-err{background:var(--danger-soft);color:var(--danger)}
+
+.conn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+  padding:5px 11px;border-radius:var(--r-pill);background:var(--surface-2)}
+.conn .led{width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0}
+.conn.warn .led{background:var(--warning)}
+.conn.err  .led{background:var(--danger)}
+.conn.warn{color:var(--warning)} .conn.err{color:var(--danger)} .conn.ok{color:var(--success)}
+
+/* Board */
+.board{width:100%;height:100%;background:#0B0D10;color:#E8E2D8;display:grid;
+  place-items:center;text-align:center;padding:var(--sp-6);position:relative}
+.board .slide{width:100%;height:100%;background:#1A1D23;border-radius:var(--r-sm);
+  display:grid;place-items:center;color:#5A626E;font-size:13px;position:relative;overflow:hidden}
+.board .slide-content{font-family:var(--font-prose);color:#F2EDE3;max-width:70%;text-align:center}
+.board .slide-content .big{font-size:36px;line-height:1.35;margin-bottom:22px}
+.board .slide-content .ask{font-size:30px;color:#E0784F;font-style:italic}
+.paircode{font-family:var(--font-mono);font-size:78px;letter-spacing:.14em;color:#fff;
+  font-weight:600;margin:var(--sp-4) 0;line-height:1}
+.board .hint{color:#7B8492;font-size:15px;max-width:440px;margin:0 auto;line-height:1.6}
+.board .url{font-family:var(--font-mono);font-size:17px;color:#B9C0CB;margin-top:var(--sp-5)}
+.board-badge{position:absolute;inset-block-start:14px;inset-inline-end:16px;
+  font-size:11px;color:#5A626E;font-variant-numeric:tabular-nums}
+
+/* Companion (phone) */
+.ph{background:var(--bg);min-height:660px;display:flex;flex-direction:column;color:var(--ink)}
+.ph-top{display:flex;align-items:center;gap:10px;padding:12px var(--sp-4);
+  border-bottom:1px solid var(--border);flex-shrink:0}
+.ph-top .lt{font-size:12.5px;color:var(--ink-muted);flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.ph-body{flex:1;padding:var(--sp-4);overflow-y:auto}
+.ph-prev{width:100%;aspect-ratio:16/9;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--r-md);display:grid;place-items:center;font-size:11.5px;
+  color:var(--ink-faint);margin-bottom:var(--sp-4);position:relative}
+.ph-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ph-page{font-size:13px;font-weight:600;color:var(--ink-strong);font-variant-numeric:tabular-nums}
+.ph-timer{font-family:var(--font-mono);font-size:14px;color:var(--ink-muted);
+  font-variant-numeric:tabular-nums}
+.ph-slidetitle{font-family:var(--font-prose);font-style:italic;color:var(--ink-muted);
+  font-size:15px;margin-bottom:14px;line-height:1.5}
+.script{font-family:var(--font-prose);font-size:20px;line-height:1.62;color:var(--ink)}
+.script .cue{font-weight:600;color:var(--accent)}
+.script p{margin:0 0 15px}
+.ph-next{font-size:13px;color:var(--ink-muted);border-top:1px solid var(--border);
+  padding-top:12px;margin-top:var(--sp-5)}
+.ph-ctl{display:flex;gap:10px;padding:12px var(--sp-4) 18px;border-top:1px solid var(--border);
+  flex-shrink:0;background:var(--surface)}
+.ph-ctl .btn{flex:1;padding:18px 0;font-size:16px}
+.ph-ctl .btn-prev{flex:0 0 92px}
+
+/* Notes editor */
+.ntable{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
+.nrow{display:grid;grid-template-columns:132px 1fr 74px;gap:var(--sp-4);padding:var(--sp-4);
+  border-bottom:1px solid var(--border);align-items:start}
+.nrow:last-child{border-bottom:0}
+.nthumb{aspect-ratio:16/9;background:var(--surface-3);border-radius:var(--r-sm);
+  display:grid;place-items:center;font-size:10.5px;color:var(--ink-faint);position:relative}
+.nstat{font-size:11.5px;color:var(--ink-faint);padding-top:9px;text-align:end}
+.nstat.saved{color:var(--success);font-weight:600}
+.nmeta{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.nmeta .ntitle{flex:1;font-size:13.5px;padding:7px 10px}
+.nmeta .nmin{width:58px;font-size:13.5px;padding:7px 10px;text-align:center}
+.nmeta .unit{font-size:12px;color:var(--ink-faint)}
+
+/* Print */
+.sheet{background:#fff;color:#111;padding:44px;font-family:var(--font-prose);
+  max-width:760px;margin:0 auto;box-shadow:var(--shadow-3)}
+.sheet h1{font-family:var(--font-display);font-size:25px;margin:0 0 6px}
+.sheet .pmeta{font-family:var(--font-ui);font-size:12px;color:#666;margin-bottom:22px;
+  padding-bottom:14px;border-bottom:1px solid #ddd}
+.pblock{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:16px 0;
+  border-bottom:1px solid #eee;break-inside:avoid}
+.pthumb{aspect-ratio:16/9;background:#eee;border:1px solid #ddd;display:grid;
+  place-items:center;font-size:10px;color:#999;font-family:var(--font-ui)}
+.pblock .pn{font-family:var(--font-ui);font-size:11px;color:#888;font-weight:600;margin-bottom:5px}
+
+/* Token swatches */
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:var(--sp-3)}
+.sw{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;background:var(--surface)}
+.sw .col{height:56px}
+.sw .lbl{padding:8px 10px;font-size:11.5px}
+.sw .lbl b{display:block;color:var(--ink-strong);font-size:12px}
+.sw .lbl span{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint)}
+table.spec{width:100%;border-collapse:collapse;font-size:13.5px}
+table.spec th{text-align:start;padding:9px 12px;background:var(--surface-2);
+  font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-muted)}
+table.spec td{padding:9px 12px;border-top:1px solid var(--border);vertical-align:top}
+table.spec code{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);
+  padding:1px 5px;border-radius:3px}
+.mirror-yes{color:var(--success);font-weight:600}
+.mirror-no{color:var(--danger);font-weight:600}
+.stack{display:flex;flex-direction:column;gap:var(--sp-5)}
+.hstack{display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap}
+.divider{height:1px;background:var(--border);margin:var(--sp-5) 0}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.nav{position:static;height:auto}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="nav">
+    <h1>Arête / Mīzān</h1>
+    <div class="sub">UX wireframes · MVP (M0–M5)<br>29 July 2026</div>
+    <div class="toggles">
+      <button id="tTheme" onclick="tog('theme')">☀ Light</button>
+      <button id="tDir" onclick="tog('dir')">LTR</button>
+    </div>
+
+    <div class="nav-group">Foundations</div>
+    <a onclick="go('tokens',this)" class="on">Design system</a>
+
+    <div class="nav-group">Entry</div>
+    <a onclick="go('signin',this)">Sign in</a>
+    <a onclick="go('invite',this)">Accept invitation</a>
+
+    <div class="nav-group">Browse · teacher</div>
+    <a onclick="go('home',this)">Library home</a>
+    <a onclick="go('track',this)">Scope &amp; sequence</a>
+    <a onclick="go('search',this)">Search results</a>
+    <a onclick="go('lesson',this)">Lesson page <span class="tag">key</span></a>
+    <a onclick="go('lightbox',this)">Slide preview</a>
+    <a onclick="go('empty',this)">Empty states</a>
+
+    <div class="nav-group">Teach mode</div>
+    <a onclick="go('pair',this)">Teach · enter code</a>
+    <a onclick="go('boardwait',this)">Board · waiting</a>
+    <a onclick="go('boardhold',this)">Board · holding</a>
+    <a onclick="go('boardlive',this)">Board · teaching</a>
+    <a onclick="go('preflight',this)">Companion · pre-flight</a>
+    <a onclick="go('companion',this)">Companion · teaching <span class="tag">key</span></a>
+    <a onclick="go('degraded',this)">Degraded states</a>
+    <a onclick="go('print',this)">Printed script</a>
+
+    <div class="nav-group">Authoring · admin</div>
+    <a onclick="go('adminlist',this)">Lesson index</a>
+    <a onclick="go('adminform',this)">Lesson form + ingest</a>
+    <a onclick="go('notes',this)">Notes editor <span class="tag">key</span></a>
+    <a onclick="go('people',this)">People &amp; invites</a>
+  </aside>
+
+  <main class="stage">
+
+  <!-- ══════════════════ DESIGN SYSTEM ══════════════════ -->
+  <section class="screen on" id="tokens">
+    <div class="screen-head">
+      <h2>Design system</h2>
+      <div class="meta">Two contexts, not two themes. <strong>Browse runs light</strong> (parchment, drawn from the Mīzān brief's own print palette). <strong>Teach runs dark, always</strong> — the teacher is in a darkened room and a white phone screen blinds them and distracts students. Dark is not a user preference here; it's a property of the mode.</div>
+    </div>
+    <div class="frame frame-desktop"><div class="pad"><div class="wrap-wide">
+
+      <h3 class="sec">Color</h3>
+      <div class="sw-grid">
+        <div class="sw"><div class="col" style="background:#FBF6EC"></div><div class="lbl"><b>bg</b><span>#FBF6EC</span></div></div>
+        <div class="sw"><div class="col" style="background:#FFFDF8"></div><div class="lbl"><b>surface</b><span>#FFFDF8</span></div></div>
+        <div class="sw"><div class="col" style="background:#F4EBDB"></div><div class="lbl"><b>surface-2</b><span>#F4EBDB</span></div></div>
+        <div class="sw"><div class="col" style="background:#E3D7C2"></div><div class="lbl"><b>border</b><span>#E3D7C2</span></div></div>
+        <div class="sw"><div class="col" style="background:#16304F"></div><div class="lbl"><b>ink-strong</b><span>#16304F</span></div></div>
+        <div class="sw"><div class="col" style="background:#2A2723"></div><div class="lbl"><b>ink</b><span>#2A2723</span></div></div>
+        <div class="sw"><div class="col" style="background:#6E655A"></div><div class="lbl"><b>ink-muted</b><span>#6E655A</span></div></div>
+        <div class="sw"><div class="col" style="background:#B5502E"></div><div class="lbl"><b>accent</b><span>#B5502E</span></div></div>
+        <div class="sw"><div class="col" style="background:#2F6D4F"></div><div class="lbl"><b>success</b><span>#2F6D4F</span></div></div>
+        <div class="sw"><div class="col" style="background:#8A5E10"></div><div class="lbl"><b>warning</b><span>#8A5E10</span></div></div>
+        <div class="sw"><div class="col" style="background:#A32C22"></div><div class="lbl"><b>danger</b><span>#A32C22</span></div></div>
+        <div class="sw"><div class="col" style="background:#14171C"></div><div class="lbl"><b>dark bg</b><span>#14171C</span></div></div>
+      </div>
+      <p class="hint" style="margin-top:12px">Accent on surface = 5.9:1, ink on bg = 13.4:1, ink-muted on bg = 5.1:1 — all AA. The dark accent lightens to <code>#E0784F</code> to hold 5.4:1 on <code>#14171C</code>. Never use accent as a large background behind body text.</p>
+
+      <div class="divider"></div>
+      <h3 class="sec">Type</h3>
+      <table class="spec">
+        <tr><th>Role</th><th>Family</th><th>Size / line</th><th>Used for</th></tr>
+        <tr><td>Display</td><td><code>Fraunces</code> 600</td><td>22–32 / 1.25</td><td>Lesson titles, section heads, brand</td></tr>
+        <tr><td>Prose</td><td><code>Spectral</code> 400</td><td>16.5 / 1.7</td><td>Prime, close prompt, lesson copy</td></tr>
+        <tr><td><strong>Script</strong></td><td><code>Spectral</code> 400</td><td><strong>20 / 1.62</strong></td><td>Companion notes — sized for a 2-second glance at arm's length in a dim room. Do not shrink this to fit more on screen.</td></tr>
+        <tr><td>UI</td><td>system sans</td><td>13–15 / 1.5</td><td>Chrome, chips, tables, buttons, forms</td></tr>
+        <tr><td>Numeric</td><td>system sans, <code>tabular-nums</code></td><td>—</td><td>Page counts, timers, pairing code</td></tr>
+        <tr><td>Arabic prose</td><td><code>Noto Naskh Arabic</code></td><td>+1px, line-height +0.15</td><td>Arabic needs more leading than Latin at the same optical size</td></tr>
+      </table>
+
+      <div class="divider"></div>
+      <h3 class="sec">Buttons</h3>
+      <div class="hstack">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn">Secondary</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-danger">Danger</button>
+        <button class="btn btn-primary" disabled>Disabled</button>
+        <button class="btn btn-primary btn-teach">Teach <span class="gnext"></span></button>
+      </div>
+      <p class="hint" style="margin-top:10px">One primary action per screen. On the lesson page that is <strong>Teach</strong>; nothing else competes with it. Focus ring is 2px <code>--focus</code> at 2px offset — never removed.</p>
+
+      <div class="divider"></div>
+      <h3 class="sec">Chips &amp; status</h3>
+      <div class="hstack">
+        <span class="chip">Grade 6</span><span class="chip">≈ 38 min</span>
+        <span class="chip">8 slides</span><span class="chip chip-accent">kindness</span>
+        <span class="chip chip-draft">Draft</span><span class="chip chip-live">Published</span>
+        <span class="conn ok"><span class="led"></span>Connected</span>
+        <span class="conn warn"><span class="led"></span>Reconnecting</span>
+        <span class="conn err"><span class="led"></span>Disconnected</span>
+      </div>
+
+      <div class="divider"></div>
+      <h3 class="sec">Spacing, radius, motion</h3>
+      <table class="spec">
+        <tr><th>Token</th><th>Value</th><th>Note</th></tr>
+        <tr><td>Spacing</td><td><code>4 · 8 · 12 · 16 · 24 · 32 · 48 · 64</code></td><td>4px base. Nothing between steps.</td></tr>
+        <tr><td>Radius</td><td><code>4 / 8 / 14 / pill</code></td><td>sm=inputs &amp; thumbs, md=buttons &amp; blocks, lg=cards</td></tr>
+        <tr><td>Tap target</td><td><code>min 44×44</code>; companion Prev/Next <code>56px</code> tall</td><td>Thumb-operated, one-handed, without looking</td></tr>
+        <tr><td>Motion</td><td><code>120ms</code> hover, <code>180ms</code> ease-out enter</td><td><strong>Slide advance has zero transition.</strong> A cross-fade on a projector reads as lag.</td></tr>
+        <tr><td>Reduced motion</td><td><code>prefers-reduced-motion</code></td><td>Drops all transitions; nothing depends on animation to be understood.</td></tr>
+      </table>
+
+      <div class="divider"></div>
+      <h3 class="sec">RTL mirroring rules</h3>
+      <table class="spec">
+        <tr><th>Element</th><th>Mirrors?</th><th>Why</th></tr>
+        <tr><td>Layout, nav, breadcrumbs, tables, thumbnail grid</td><td class="mirror-yes">Yes</td><td>Logical properties handle it automatically</td></tr>
+        <tr><td><strong>Prev / Next arrows</strong></td><td class="mirror-yes">Yes</td><td><strong>The classic bug.</strong> In Arabic, "next" points left. Bind the glyph to reading direction, not to a fixed ‹ ›.</td></tr>
+        <tr><td>Page-number progress bar</td><td class="mirror-yes">Yes</td><td>Fills from the start edge</td></tr>
+        <tr><td><strong>Slide images</strong></td><td class="mirror-no">No</td><td>Rasterized from the PDF. The Arabic deck is a different file, already laid out RTL. Never CSS-flip a slide.</td></tr>
+        <tr><td>Pairing code</td><td class="mirror-no">No</td><td>Codes are Latin/base32 and read LTR in both locales. Force <code>dir="ltr"</code> on that element.</td></tr>
+        <tr><td>Numerals</td><td class="mirror-no">Decide once</td><td>Recommend Western digits in both locales — page numbers must match the printed deck and the PDF viewer.</td></tr>
+      </table>
+    </div></div></div>
+    <div class="note"><strong>Why the browse app is light and teach mode is dark.</strong> They're used minutes apart but in opposite conditions: lesson prep at a desk with lights on, teaching in a dimmed room facing a projector. A single theme serves one and fails the other. Hard-code the mode rather than following <code>prefers-color-scheme</code> — a teacher whose phone is in light mode should still get a dark companion.</div>
+  </section>
+
+  <!-- ══════════════════ SIGN IN ══════════════════ -->
+  <section class="screen" id="signin">
+    <div class="screen-head"><h2>Sign in</h2>
+      <div class="meta">Rails 8 auth generator. Teachers arrive by invitation, so there is <strong>no public sign-up</strong> — that absence is deliberate and worth a line of copy so nobody hunts for it.</div></div>
+    <div class="frame" style="max-width:440px"><div class="pad">
+      <div style="text-align:center;margin-bottom:var(--sp-6)">
+        <div class="brand" style="font-size:24px">Mīzān<span class="dot">.</span></div>
+        <div style="font-size:13.5px;color:var(--ink-muted);margin-top:6px">Curriculum Platform</div>
+      </div>
+      <div class="field"><label>Email</label><input class="input" value="teacher@school.eg"></div>
+      <div class="field"><label>Password</label><input class="input" type="password" value="········"></div>
+      <button class="btn btn-primary" style="width:100%;padding:12px">Sign in</button>
+      <div style="text-align:center;margin-top:var(--sp-4)">
+        <a class="btn btn-ghost" style="font-size:13px">Forgot your password?</a>
+      </div>
+      <div class="divider"></div>
+      <p class="hint" style="text-align:center">Accounts are created by your school administrator.<br>Ask them for an invitation.</p>
+    </div></div>
+    <div class="note"><strong>Also in this group:</strong> forgot-password, reset-password, and <strong>accept-invitation</strong> (drawn next). The invitation screen should show which school and role you're accepting — it's the only moment a teacher sees that, and getting it wrong is a support ticket.</div>
+  </section>
+
+  <!-- ══════════════════ ACCEPT INVITATION ══════════════════ -->
+  <section class="screen" id="invite">
+    <div class="screen-head"><h2>Accept invitation</h2>
+      <div class="meta">Route <code>/invitations/:token</code>, from an emailed link. Ships in <strong>M5</strong> — until then, users are created via seeds or the console. One job beyond setting a password: show <strong>which school and role</strong> is being accepted. This is the only moment a teacher ever sees their role spelled out.</div></div>
+    <div class="frame" style="max-width:440px"><div class="pad">
+      <div style="text-align:center;margin-bottom:var(--sp-5)">
+        <div class="brand" style="font-size:24px">Mīzān<span class="dot">.</span></div>
+        <div style="font-size:13.5px;color:var(--ink-muted);margin-top:6px">Curriculum Platform</div>
+      </div>
+      <div class="banner banner-info" style="margin-bottom:var(--sp-5)">
+        <span>✉</span><div>You've been invited to join<br>
+        <strong>Nasr City International School</strong> as a <strong>Teacher</strong>.</div>
+      </div>
+      <div class="field"><label>Your name</label><input class="input" placeholder="As colleagues will see it"></div>
+      <div class="field"><label>Email</label><input class="input" value="omar@ncis.edu.eg" disabled>
+        <div class="hint">Set by the invitation — this is where the link was sent.</div></div>
+      <div class="field"><label>Choose a password</label><input class="input" type="password"></div>
+      <button class="btn btn-primary" style="width:100%;padding:12px">Accept and sign in</button>
+      <p class="hint" style="text-align:center;margin-top:var(--sp-4)">Not you, or the wrong school? Ignore this link and tell whoever sent it.</p>
+    </div></div>
+    <div class="note"><strong>Why school + role are on the screen and not just in the email:</strong> accepting an invitation binds this account to a school and a permission level. If it's wrong, this screen is where the teacher can still stop — after this it's a support ticket. The token expires (7 days) and is single-use; an expired token gets a clear "ask for a new invitation" state, not a 404.</div>
+  </section>
+
+  <!-- ══════════════════ LIBRARY HOME ══════════════════ -->
+  <section class="screen" id="home">
+    <div class="screen-head"><h2>Library home</h2>
+      <div class="meta">Route <code>/</code>. Pick a track, then a grade. Three tracks, so cards beat a dropdown. The search field is here because a teacher who already knows the lesson shouldn't have to walk the tree.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar">
+        <div class="brand">Mīzān<span class="dot">.</span></div>
+        <nav class="appnav"><a class="on">Library</a><a>My lessons</a></nav>
+        <div class="spacer"></div>
+        <div class="avatar">NA</div>
+      </div>
+      <div class="pad"><div class="wrap-wide">
+        <div style="margin-bottom:var(--sp-6)">
+          <!-- t("library.welcome") — no time-of-day logic; a "good morning" that's
+               wrong at 1pm (or in another timezone) costs more than it warms -->
+          <h3 class="sec" style="margin-bottom:6px">Welcome back, Nour</h3>
+          <p style="color:var(--ink-muted);font-size:14.5px;margin:0">Choose a track to see the year at a glance.</p>
+        </div>
+        <div style="margin-bottom:var(--sp-6)">
+          <input class="input" placeholder="Search lessons — try “kindness”, “agency”, “Grade 6”…" style="padding:12px 14px;font-size:15px">
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-4)">
+          <div class="card card-link">
+            <div class="eyebrow">Track</div>
+            <div style="font-family:var(--font-display);font-size:21px;color:var(--ink-strong);margin-bottom:6px;font-weight:600">Mīzān</div>
+            <p style="font-size:13.5px;color:var(--ink-muted);margin:0 0 14px;line-height:1.55">Balance and moral weight. The foundational track.</p>
+            <div class="chips"><span class="chip">K–12</span><span class="chip">96 lessons</span></div>
+          </div>
+          <div class="card card-link" style="border-color:var(--accent)">
+            <div class="eyebrow">Track</div>
+            <div style="font-family:var(--font-display);font-size:21px;color:var(--ink-strong);margin-bottom:6px;font-weight:600">Arête</div>
+            <p style="font-size:13.5px;color:var(--ink-muted);margin:0 0 14px;line-height:1.55">Excellence and the formation of character.</p>
+            <div class="chips"><span class="chip">K–12</span><span class="chip">104 lessons</span></div>
+          </div>
+          <div class="card card-link">
+            <div class="eyebrow">Track</div>
+            <div style="font-family:var(--font-display);font-size:21px;color:var(--ink-strong);margin-bottom:6px;font-weight:600">Iḥsān</div>
+            <p style="font-size:13.5px;color:var(--ink-muted);margin:0 0 14px;line-height:1.55">Beauty in action; doing the good beautifully.</p>
+            <div class="chips"><span class="chip">K–12</span><span class="chip">60 lessons</span></div>
+          </div>
+        </div>
+        <div style="margin-top:var(--sp-7)">
+          <div class="eyebrow">Continue</div>
+          <div class="list" style="margin-top:10px">
+            <div class="row"><div class="idx">3</div><div class="body">
+              <div class="t">Kindness when no one claps</div>
+              <div class="s">Arête · Grade 6 · Unit 2: Kindness · taught 2 days ago</div>
+            </div><div class="end"><span class="chip">8 slides</span><button class="btn btn-primary">Teach <span class="gnext"></span></button></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="note"><strong>Navigation restraint is the point.</strong> Two top-level items, forever. Every additional nav item is a decision a teacher has to make at 7:50am. "My lessons" is a recently-taught shortcut (from teach-session history — saving/bookmarking is phase 2), not a second library. <em>Phase 2</em> adds a third item — Pacing — and nothing else; the admin section lives at <code>/admin</code> with its own chrome and is invisible to teachers.</div>
+  </section>
+
+  <!-- ══════════════════ TRACK ══════════════════ -->
+  <section class="screen" id="track">
+    <div class="screen-head"><h2>Scope &amp; sequence</h2>
+      <div class="meta">Route <code>/tracks/arete</code>. The brief asks for "the whole year at a glance" — so grades are a horizontal rail and only the selected grade expands. Units are headers, lessons are rows; the sequence is the content.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar"><div class="brand">Mīzān<span class="dot">.</span></div>
+        <nav class="appnav"><a class="on">Library</a><a>My lessons</a></nav>
+        <div class="spacer"></div><div class="avatar">NA</div></div>
+      <div class="pad"><div class="wrap-wide">
+        <div class="crumb"><a>Library</a><span class="sep"></span><span>Arête</span></div>
+        <h3 class="sec">Arête</h3>
+        <div class="hstack" style="margin-bottom:var(--sp-5);gap:5px">
+          <span class="chip">K</span><span class="chip">1</span><span class="chip">2</span><span class="chip">3</span>
+          <span class="chip">4</span><span class="chip">5</span>
+          <span class="chip chip-accent" style="font-weight:600">Grade 6</span>
+          <span class="chip">7</span><span class="chip">8</span><span class="chip">9</span>
+          <span class="chip">10</span><span class="chip">11</span><span class="chip">12</span>
+        </div>
+        <div style="margin-bottom:var(--sp-5)">
+          <div class="eyebrow">Unit 1 · The Self and Its Agency</div>
+          <div class="list" style="margin-top:8px">
+            <div class="row"><div class="idx">1</div><div class="body"><div class="t">What agency is</div>
+              <div class="s">7 slides · ≈ 35 min</div></div><div class="end"><span class="chip">agency</span></div></div>
+            <div class="row"><div class="idx">2</div><div class="body"><div class="t">The two mornings</div>
+              <div class="s">9 slides · ≈ 40 min</div></div><div class="end"><span class="chip">agency</span></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="eyebrow">Unit 2 · Kindness</div>
+          <div class="list" style="margin-top:8px">
+            <div class="row"><div class="idx">1</div><div class="body"><div class="t">What kindness is</div>
+              <div class="s">8 slides · ≈ 35 min</div></div><div class="end"><span class="chip">kindness</span></div></div>
+            <div class="row"><div class="idx">2</div><div class="body"><div class="t">Kindness and how we feel</div>
+              <div class="s">7 slides · ≈ 35 min</div></div><div class="end"><span class="chip">kindness</span></div></div>
+            <div class="row" style="background:var(--accent-soft)"><div class="idx">3</div><div class="body">
+              <div class="t">Kindness when no one claps</div>
+              <div class="s">8 slides · ≈ 38 min · 1 handout</div></div>
+              <div class="end"><span class="chip chip-accent">kindness</span></div></div>
+            <div class="row"><div class="idx">4</div><div class="body"><div class="t">Kindness that costs something</div>
+              <div class="s">9 slides · ≈ 40 min</div></div><div class="end"><span class="chip">kindness</span></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="note"><strong>An admin sees one extra thing here:</strong> unpublished lessons appear inline with a <span class="chip chip-draft">Draft</span> chip rather than being hidden. Teachers never see them at all — that's <code>policy_scope</code>, not a CSS class, and it's tested (M2).</div>
+  </section>
+
+  <!-- ══════════════════ SEARCH ══════════════════ -->
+  <section class="screen" id="search">
+    <div class="screen-head"><h2>Search &amp; filter results</h2>
+      <div class="meta">Same route as the library with query params — <code>?q=kindness&amp;grade=6</code> — so results are bookmarkable and shareable. Results replace the tree with a flat list; each row carries its own breadcrumb, because a lesson out of the tree is meaningless without its position.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar"><div class="brand">Mīzān<span class="dot">.</span></div>
+        <nav class="appnav"><a class="on">Library</a><a>My lessons</a></nav>
+        <div class="spacer"></div><div class="avatar">NA</div></div>
+      <div class="pad"><div class="wrap-wide">
+        <input class="input" value="kindness" style="padding:12px 14px;font-size:15px;margin-bottom:var(--sp-4)">
+        <div class="hstack" style="margin-bottom:var(--sp-5)">
+          <select class="select" style="width:auto"><option>All tracks</option></select>
+          <select class="select" style="width:auto"><option>Grade 6</option></select>
+          <span class="chip chip-accent">kindness ✕</span>
+          <span class="chip">virtue</span><span class="chip">community</span>
+          <div class="spacer"></div>
+          <a class="btn btn-ghost" style="font-size:13px">Clear all</a>
+        </div>
+        <div style="font-size:13px;color:var(--ink-muted);margin-bottom:10px">4 lessons · Grade 6 · tagged “kindness”</div>
+        <div class="list">
+          <div class="row"><div class="body">
+            <div class="t">Kindness when no one claps</div>
+            <div class="s">Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2: Kindness<span class="tsep"></span>Lesson 3</div>
+          </div><div class="end"><span class="chip">8 slides</span><span class="chip">≈ 38 min</span></div></div>
+          <div class="row"><div class="body"><div class="t">What kindness is</div>
+            <div class="s">Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2: Kindness<span class="tsep"></span>Lesson 1</div>
+          </div><div class="end"><span class="chip">8 slides</span></div></div>
+          <div class="row"><div class="body"><div class="t">Kindness and how we feel</div>
+            <div class="s">Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2: Kindness<span class="tsep"></span>Lesson 2</div>
+          </div><div class="end"><span class="chip">7 slides</span></div></div>
+          <div class="row"><div class="body"><div class="t">The weight of a small mercy</div>
+            <div class="s">Mīzān<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 4: Mercy<span class="tsep"></span>Lesson 2</div>
+          </div><div class="end"><span class="chip">6 slides</span></div></div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ LESSON PAGE ══════════════════ -->
+  <section class="screen" id="lesson">
+    <div class="screen-head"><h2>Lesson page</h2>
+      <div class="meta">Route <code>/lessons/:id</code>. The hub, and Mockup A from the brief. Its job is not to display a lesson — it's to make the teacher <em>ready</em>. The Prime sits above the slides for that reason: the brief's whole thesis is that formation depends on the teacher's own readiness.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar"><div class="brand">Mīzān<span class="dot">.</span></div>
+        <nav class="appnav"><a class="on">Library</a><a>My lessons</a></nav>
+        <div class="spacer"></div><div class="avatar">NA</div></div>
+      <div class="pad"><div class="wrap">
+        <div class="crumb"><a>Arête</a><span class="sep"></span><a>Grade 6</a><span class="sep"></span>
+          <a>Unit 2: Kindness</a><span class="sep"></span><span>Lesson 3</span></div>
+        <h3 class="sec" style="font-size:29px;margin-bottom:10px">Kindness When No One Claps</h3>
+        <div class="chips" style="margin-bottom:var(--sp-5)">
+          <span class="chip">Grade 6</span><span class="chip">≈ 38 min</span>
+          <span class="chip">8 slides</span><span class="chip">1 handout</span>
+          <span class="chip chip-accent">kindness</span>
+        </div>
+        <div class="hstack" style="margin-bottom:var(--sp-6)">
+          <button class="btn btn-primary btn-teach">Teach <span class="gnext"></span></button>
+          <span style="display:inline-flex;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden">
+            <span style="padding:9px 15px;background:var(--ink-strong);color:var(--surface);font-size:13.5px;font-weight:600">EN</span>
+            <span style="padding:9px 15px;font-size:13.5px;color:var(--ink-muted)">AR</span>
+          </span>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost">🖨 Print script</button>
+        </div>
+
+        <div class="prime" style="margin-bottom:var(--sp-6)">
+          <div class="eyebrow">The Prime — read before class</div>
+          <p>This lesson does not work if you teach it from above the students. Before class, answer the question you will ask them: who is the one person it is hard for <em>you</em> to be kind to? Two things to protect — do not rescue the silence on Slide 5, and keep the handout private.</p>
+        </div>
+
+        <div style="margin-bottom:var(--sp-6)">
+          <div class="eyebrow" style="margin-bottom:10px">The 8 slides</div>
+          <div class="thumbs">
+            <div class="thumb"><span class="n">1</span>A quiet start</div>
+            <div class="thumb"><span class="n">2</span>Two words</div>
+            <div class="thumb"><span class="n">3</span>The lunch table</div>
+            <div class="thumb"><span class="n">4</span>It costs</div>
+            <div class="thumb" style="border-color:var(--accent)"><span class="n">5</span>No one claps</div>
+            <div class="thumb"><span class="n">6</span>An experiment</div>
+            <div class="thumb"><span class="n">7</span>One hard person</div>
+            <div class="thumb"><span class="n">8</span>Where to start</div>
+          </div>
+          <p class="hint">Click any slide to preview it large, with its script — how a teacher reviews before class.</p>
+        </div>
+
+        <div style="margin-bottom:var(--sp-6)">
+          <div class="eyebrow" style="margin-bottom:10px">Materials</div>
+          <div class="list"><div class="row"><div class="body">
+            <div class="t">One Hard Person — half-page handout.pdf</div>
+            <div class="s">One per student · 84 KB</div></div>
+            <div class="end"><button class="btn">Download</button></div></div></div>
+        </div>
+
+        <div class="close-block">
+          <div class="eyebrow">The Close</div>
+          <p>“Who is the one person it is hard for you to be kind to — and what is the smallest thing you could do this week?”</p>
+        </div>
+      </div></div>
+    </div>
+    <div class="note"><strong>Three decisions worth defending here.</strong>
+      <ul>
+        <li><strong>One primary button.</strong> Teach is the only filled button on the page. Print, Download and the locale switch are all secondary — if everything is prominent, a teacher at 7:50am reads nothing.</li>
+        <li><strong>The locale switch is on this page, not in global settings.</strong> Per the brief: language is chosen once, before teaching, and sets everything downstream. It belongs next to Teach because that's the decision it modifies. Grey out AR when no Arabic sibling row exists yet — don't hide it, or nobody learns the feature exists.</li>
+        <li><strong>Slide thumbnails are clickable.</strong> The brief doesn't ask for this, but a teacher previewing at their desk needs to see slide 5 large with its script before deciding how to handle the silence. It's a lightbox over content already on the page — near-zero cost. Drawn next.</li>
+      </ul></div>
+  </section>
+
+  <!-- ══════════════════ SLIDE PREVIEW LIGHTBOX ══════════════════ -->
+  <section class="screen" id="lightbox">
+    <div class="screen-head"><h2>Slide preview lightbox</h2>
+      <div class="meta">An overlay on <code>/lessons/:id</code> (M2), opened by clicking any thumbnail. How a teacher reviews before class: the slide large, with the script they'll have on their phone at that moment. Prev/next page through slides without leaving the overlay; Esc or ✕ returns to the page beneath.</div></div>
+    <div class="frame frame-desktop"><div style="background:rgba(22,19,14,.62);padding:var(--sp-7) var(--sp-5)">
+      <div class="card" style="max-width:720px;margin:0 auto;padding:var(--sp-5)">
+        <div class="hstack" style="margin-bottom:var(--sp-4)">
+          <span class="ph-page" style="font-size:14px">Slide 5 of 8</span>
+          <span class="ph-slidetitle" style="margin:0;font-size:14px">· When no one claps</span>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost" style="padding:5px 10px">✕</button>
+        </div>
+        <div style="aspect-ratio:16/9;background:#14171C;border-radius:var(--r-sm);display:grid;place-items:center;margin-bottom:var(--sp-4)">
+          <div style="font-family:var(--font-prose);color:#F2EDE3;max-width:70%;text-align:center">
+            <div style="font-size:22px;line-height:1.4;margin-bottom:12px">Most real kindness gets no credit. No one claps — sometimes no one even knows it was you.</div>
+            <div style="font-size:18px;color:#E0784F;font-style:italic">Would you still do it?</div>
+          </div>
+        </div>
+        <div class="eyebrow">Your script for this slide</div>
+        <div class="script" style="font-size:16.5px">
+          <p>Read it, then <span class="cue">stop.</span> Do not answer your own question. <span class="cue">Let the room be quiet</span> — count to ten before you speak.</p>
+        </div>
+        <div class="hstack" style="margin-top:var(--sp-4)">
+          <button class="btn"><span class="gprev"></span> Slide 4</button>
+          <div class="spacer"></div>
+          <button class="btn">Slide 6 <span class="gnext"></span></button>
+        </div>
+      </div>
+    </div></div>
+    <div class="note"><strong>The title line comes from <code>Slide#title</code></strong> (nothing shows when it's nil), the script from <code>Slide#notes</code> — both already on the lesson page's data; the lightbox fetches nothing. Keyboard: ←/→ page within the lightbox, Esc closes. The slide image is never CSS-flipped in RTL — it's a rasterized PDF page (see the design-system mirroring rules).</div>
+  </section>
+
+  <!-- ══════════════════ EMPTY STATES ══════════════════ -->
+  <section class="screen" id="empty">
+    <div class="screen-head"><h2>Empty states</h2>
+      <div class="meta">M5 calls these out, and rightly — <strong>these are the first screens the Mīzān team will see</strong>, before any content exists. An empty state that just says "No results" reads as a broken app on day one.</div></div>
+    <div class="frame frame-desktop"><div class="pad"><div class="wrap-wide">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4)">
+        <div class="card"><div class="empty">
+          <div class="icon">◫</div><h4>No lessons published yet</h4>
+          <p>Once the curriculum team publishes lessons for this grade, they'll appear here in teaching order.</p>
+        </div></div>
+        <div class="card"><div class="empty">
+          <div class="icon">⌕</div><h4>Nothing matched “agenncy”</h4>
+          <p>Check the spelling, or clear a filter — you have Grade 6 and one tag applied.</p>
+          <button class="btn">Clear all filters</button>
+        </div></div>
+        <div class="card"><div class="empty">
+          <div class="icon">◳</div><h4>No slides yet</h4>
+          <p>Upload a deck PDF and the pages will become slides automatically.</p>
+          <button class="btn btn-primary">Upload deck</button>
+        </div></div>
+        <div class="card"><div class="empty">
+          <div class="icon">⏻</div><h4>This session has ended</h4>
+          <p>The board is showing a new pairing code.</p>
+          <button class="btn">New session</button>
+        </div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="stack">
+        <div class="banner banner-warn"><span>◔</span><div><strong>Deck is still processing</strong> — 9 of 15 pages rendered. Notes you type now are saved and will survive.</div></div>
+        <div class="banner banner-err"><span>✕</span><div><strong>That code didn't work.</strong> Codes expire after 3 minutes. Refresh the board screen for a new one.</div></div>
+        <div class="banner banner-ok"><span>✓</span><div><strong>Paired with the board.</strong> Slide 1 is up.</div></div>
+      </div>
+    </div></div></div>
+    <div class="note"><strong>Deliberately vague error copy in one place only:</strong> a failed pairing code says "code not found or expired" without distinguishing which. Telling the user which one they got wrong turns the form into an oracle for guessing codes (M4).</div>
+  </section>
+
+  <!-- ══════════════════ PAIR ══════════════════ -->
+  <section class="screen" id="pair">
+    <div class="screen-head"><h2>Teach · enter the pairing code</h2>
+      <div class="meta">Route <code>/lessons/:id/teach</code> on the teacher's phone. Board-first pairing, like casting to a TV: nothing is typed on the shared classroom PC except a bookmarked URL.</div></div>
+    <div class="frame-label ctr">Teacher's phone · dark</div>
+    <div class="frame frame-phone dark"><div class="ph">
+      <div class="ph-top"><a class="btn btn-ghost" style="padding:5px 9px">✕</a>
+        <div class="lt">Kindness When No One Claps</div></div>
+      <div class="ph-body" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+        <div class="eyebrow" style="margin-bottom:14px">Step 1</div>
+        <p style="font-family:var(--font-prose);font-size:17px;line-height:1.6;color:var(--ink);margin:0 0 var(--sp-6)">
+          On the classroom computer, open<br>
+          <span style="font-family:var(--font-mono);font-size:15px;color:var(--accent)">mizan.app/board</span><br>
+          and type the code it shows.
+        </p>
+        <input class="input" dir="ltr" value="K7QM2X" style="text-align:center;font-family:var(--font-mono);
+          font-size:34px;letter-spacing:.18em;padding:18px;text-transform:uppercase">
+        <p class="hint" style="margin-top:12px">Six characters. Codes expire after 3 minutes.</p>
+      </div>
+      <div class="ph-ctl"><button class="btn btn-primary" style="flex:1;padding:18px 0">Connect to board</button></div>
+    </div></div>
+    <div class="note"><strong>Why board-first, not phone-first.</strong> The alternative — teacher generates a code on the phone and types it into the PC — means typing on a keyboard that's often across the room, sticky, or shared. Board-first means the classroom PC only ever needs a bookmark. The tradeoff is that the code must be readable from wherever the teacher stands, which drives the board's 78px type.<br><br><strong>Input details that matter:</strong> <code>dir="ltr"</code> even in Arabic (codes are Latin base32), autocapitalize on, autocorrect off, <code>inputmode</code> that surfaces letters+digits, and O→0 / I→1 / L→1 normalized server-side so a misread glyph still works.</div>
+  </section>
+
+  <!-- ══════════════════ BOARD WAITING ══════════════════ -->
+  <section class="screen" id="boardwait">
+    <div class="screen-head"><h2>Board · waiting to pair</h2>
+      <div class="meta">Route <code>/board</code>, unauthenticated, scoped by a signed cookie. Seen from anywhere in the room, so the code is enormous. Dark because a full-brightness white projector in a dim classroom is genuinely painful.</div></div>
+    <div class="frame-label">Projector / classroom PC · 16:9</div>
+    <div class="frame frame-board"><div class="board">
+      <div>
+        <div style="font-family:var(--font-display);font-size:23px;color:#9BA3AF;margin-bottom:var(--sp-5);font-weight:400">Mīzān</div>
+        <div style="font-size:15px;color:#7B8492;letter-spacing:.06em;text-transform:uppercase">Pairing code</div>
+        <div class="paircode" dir="ltr">K7Q M2X</div>
+        <p class="hint">Enter this code on your phone to connect.<br>Expires in <span style="font-variant-numeric:tabular-nums;color:#B9C0CB">2:41</span></p>
+        <div class="url">mizan.app/board</div>
+      </div>
+      <div class="board-badge">Ready</div>
+    </div></div>
+    <div class="note"><strong>Design details doing real work here:</strong> the code is grouped <code>K7Q M2X</code> because six unbroken characters are hard to read aloud across a room. Crockford base32 excludes <code>0/O</code> and <code>1/I/L</code>, so there's nothing to misread. It's set <code>dir="ltr"</code> unconditionally. And the live countdown is better than silent expiry — a code that stopped working with no explanation is the most likely support call in the product.</div>
+  </section>
+
+  <!-- ══════════════════ BOARD HOLDING ══════════════════ -->
+  <section class="screen" id="boardhold">
+    <div class="screen-head"><h2>Board · holding</h2>
+      <div class="meta">Paired, but the teacher hasn't tapped <strong>Start</strong>. The wordmark and nothing else — no code (it's been redeemed), no slide (students shouldn't read the opening slide while the teacher settles the room). Slide 1 appears on Start, which makes the beginning of the lesson a deliberate act.</div></div>
+    <div class="frame-label">Projector · while the teacher reads the Prime on their phone</div>
+    <div class="frame frame-board"><div class="board">
+      <div>
+        <div style="font-family:var(--font-display);font-size:42px;color:#9BA3AF;font-weight:400">Mīzān<span style="color:#E0784F">.</span></div>
+      </div>
+      <div class="board-badge">Paired</div>
+    </div></div>
+    <div class="note"><strong>This state exists in the schema, not just the pixels:</strong> holding is <code>paired_at</code> present with <code>started_at: nil</code>; the phone's Start button sets <code>started_at</code> and broadcasts <code>{ started: true }</code>. The board's resync endpoint returns <code>{ page, started, ended }</code> — so a board that reconnects during pre-flight lands back <em>here</em>, never prematurely on slide 1. That reconnect-during-holding case is a named regression test in M4.</div>
+  </section>
+
+  <!-- ══════════════════ BOARD LIVE ══════════════════ -->
+  <section class="screen" id="boardlive">
+    <div class="screen-head"><h2>Board · teaching</h2>
+      <div class="meta">The slide, and nothing else. No chrome, no page counter, no logo, no cursor. Every page image is already in the DOM, hidden — advancing is a CSS class toggle, so a dropped websocket never blanks the projector.</div></div>
+    <div class="frame-label">Projector · what the whole class sees</div>
+    <div class="frame frame-board"><div class="board" style="padding:0">
+      <div class="slide"><div class="slide-content">
+        <div class="big">Most real kindness gets no credit. No one claps — sometimes no one even knows it was you.</div>
+        <div class="ask">Would you still do it?</div>
+      </div></div>
+    </div></div>
+    <div class="note"><strong>The board shows content the app did not lay out.</strong> These are rasterized PDF pages, so the app cannot fix an unreadable slide — which makes <strong>a deck template spec a real deliverable for the Mīzān team</strong>: 16:9, minimum ~28pt body type, safe margins away from projector overscan, high contrast, no thin weights, no hairline rules. A slide legible on a laptop is often illegible from the back row.<br><br><strong>What is deliberately absent:</strong> no slide counter (tells students how much is left and changes how they listen), no branding, no cursor (hide after 2s idle), no transitions. Keyboard nav ←/→/space/Esc is live but invisible — the fallback when the phone dies.</div>
+  </section>
+
+  <!-- ══════════════════ PRE-FLIGHT ══════════════════ -->
+  <section class="screen" id="preflight">
+    <div class="screen-head"><h2>Companion · pre-flight</h2>
+      <div class="meta">The moment after pairing, before slide 1. The Prime gets one uninterrupted screen — this is the brief's central claim made structural: you cannot skip past the thing that makes the lesson work without at least seeing it.</div></div>
+    <div class="frame-label ctr">Teacher's phone · dark</div>
+    <div class="frame frame-phone dark"><div class="ph">
+      <div class="ph-top">
+        <span class="conn ok"><span class="led"></span>Board ready</span>
+        <div class="spacer"></div>
+        <a class="btn btn-ghost" style="padding:5px 9px;font-size:12px">End</a>
+      </div>
+      <div class="ph-body">
+        <div class="eyebrow">Before you begin</div>
+        <h4 style="font-family:var(--font-display);font-size:21px;color:var(--ink-strong);
+          margin:0 0 var(--sp-4);font-weight:600;line-height:1.3">Kindness When No One Claps</h4>
+        <div class="prime" style="margin-bottom:var(--sp-5)">
+          <p style="font-size:17px">This lesson does not work if you teach it from above the students. Before class, answer the question you will ask them: who is the one person it is hard for <em>you</em> to be kind to?</p>
+        </div>
+        <div class="banner banner-warn" style="margin-bottom:var(--sp-4)">
+          <span>!</span><div>Two things to protect: don't rescue the silence on slide 5, and keep the handout private until the close.</div>
+        </div>
+        <div class="hstack" style="gap:6px"><span class="chip">8 slides</span>
+          <span class="chip">≈ 38 min</span><span class="chip">1 handout</span></div>
+      </div>
+      <div class="ph-ctl"><button class="btn btn-primary" style="flex:1;padding:18px 0">Start — slide 1 <span class="gnext"></span></button></div>
+    </div></div>
+    <div class="note"><strong>The board stays on a neutral holding screen during pre-flight</strong> — the Mīzān wordmark, not slide 1. Students shouldn't be reading the first slide while the teacher is still settling the room. Slide 1 appears when the teacher taps Start, which makes the beginning of the lesson a deliberate act.</div>
+  </section>
+
+  <!-- ══════════════════ COMPANION ══════════════════ -->
+  <section class="screen" id="companion">
+    <div class="screen-head"><h2>Companion · teaching</h2>
+      <div class="meta">The screen that matters most. Held one-handed, in a dim room, glanced at for ~2 seconds while talking. Everything here follows from that sentence.</div></div>
+    <div class="frame-label ctr">Teacher's phone · dark · slide 5 of 8</div>
+    <div class="frame frame-phone dark"><div class="ph">
+      <div class="ph-top">
+        <span class="conn ok"><span class="led"></span>Connected</span>
+        <div class="spacer"></div>
+        <span style="font-size:12px;color:var(--ink-faint)">◉ awake</span>
+        <a class="btn btn-ghost" style="padding:5px 9px;font-size:12px">End</a>
+      </div>
+      <div class="ph-body">
+        <div class="ph-prev">preview · slide 5</div>
+        <div class="ph-meta">
+          <span class="ph-page">Slide 5 of 8</span>
+          <span class="ph-timer">02:30 <span style="color:var(--ink-faint);font-size:12px">/ 03:00</span></span>
+        </div>
+        <div class="ph-slidetitle">When no one claps</div>
+        <div class="eyebrow">Your script</div>
+        <div class="script">
+          <p>Read it, then <span class="cue">stop.</span> Do not answer your own question.</p>
+          <p><span class="cue">Let the room be quiet</span> and a little uncomfortable — that discomfort is them meeting the real question. Count to ten before you speak.</p>
+          <p>If someone answers fast, push gently: “Even if you never got to tell anyone?”</p>
+        </div>
+        <div class="ph-next"><span style="color:var(--ink-faint)">Next</span> — 6 · A quiet experiment</div>
+      </div>
+      <div class="ph-ctl">
+        <button class="btn btn-prev"><span class="gprev"></span></button>
+        <button class="btn btn-primary">Next <span class="gnext"></span></button>
+      </div>
+    </div></div>
+    <div class="note"><strong>Eight decisions, each traceable to "2-second glance, one hand, dim room":</strong>
+      <ul>
+        <li><strong>Script at 20px.</strong> Larger than any body text in the browse app. Do not shrink it to fit more on screen — fitting more is not the goal; being readable without focusing is.</li>
+        <li><strong>Stage directions are visually distinct.</strong> "Read it, then <span style="color:var(--accent);font-weight:600">stop</span>" is an instruction to the teacher, not words to say. Needs a light markup convention in the notes field so it renders differently — worth agreeing with the Mīzān team during authoring, not retrofitting.</li>
+        <li><strong>Next is huge and thumb-reachable; Prev is deliberately smaller.</strong> Forward is the 95% action; a mis-tap backward is more disruptive than a missed forward tap.</li>
+        <li><strong>Elapsed time, not a countdown.</strong> Shown as <code>02:30 / 03:00</code>, muted, never turning red. The target comes from <code>Slide#suggested_seconds</code>; elapsed resets on advance; a slide with no target shows elapsed only. The brief wants suggested timing; a countdown that goes red mid-lesson makes a teacher rush a silence that was supposed to be uncomfortable.</li>
+        <li><strong>Slide title and next-slide preview are one line of text each</strong> — both from <code>Slide#title</code> (fallback: "Slide N"), never a thumbnail. A teacher needs to know where they are and what's coming, not to see it.</li>
+        <li><strong>End confirms before ending.</strong> An in-page Turbo confirm — "End lesson? The board will clear." — never <code>window.confirm</code> (browser dialogs are banned in the companion). An accidental End is otherwise unrecoverable mid-lesson: the pairing code was nulled on pair.</li>
+        <li><strong>The connection indicator is always visible.</strong> A teacher must learn a tap didn't land <em>before</em> they're standing in silence facing a stale slide.</li>
+        <li><strong>Screen Wake Lock.</strong> <code>navigator.wakeLock.request("screen")</code> while a session is active — otherwise the phone locks after 30 seconds of talking and iOS suspends the websocket. Show the "awake" state so the teacher trusts it, and re-request on <code>visibilitychange</code>, since the lock is dropped whenever the tab is hidden.</li>
+      </ul></div>
+  </section>
+
+  <!-- ══════════════════ DEGRADED ══════════════════ -->
+  <section class="screen" id="degraded">
+    <div class="screen-head"><h2>Degraded states</h2>
+      <div class="meta">The companion is on the critical path for teaching, so its failure modes need designing as carefully as its happy path. All three of these will happen in a real classroom in the first month.</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-5);max-width:1180px;margin:0 auto">
+      <div>
+        <div class="frame-label ctr">Reconnecting</div>
+        <div class="frame frame-phone dark"><div class="ph" style="min-height:430px">
+          <div class="ph-top"><span class="conn warn"><span class="led"></span>Reconnecting…</span></div>
+          <div class="ph-body">
+            <div class="banner banner-warn" style="margin-bottom:var(--sp-4)">
+              <span>◔</span><div>Your taps aren't reaching the board. The projector is still showing slide 5.</div></div>
+            <div class="ph-meta"><span class="ph-page">Slide 5 of 8</span></div>
+            <div class="script" style="opacity:.55"><p>Read it, then <span class="cue">stop.</span> Do not answer your own question.</p></div>
+          </div>
+          <div class="ph-ctl"><button class="btn btn-prev" disabled><span class="gprev"></span></button>
+            <button class="btn btn-primary" disabled>Next <span class="gnext"></span></button></div>
+        </div></div>
+      </div>
+      <div>
+        <div class="frame-label ctr">Offline — fallback shown</div>
+        <div class="frame frame-phone dark"><div class="ph" style="min-height:430px">
+          <div class="ph-top"><span class="conn err"><span class="led"></span>Disconnected</span></div>
+          <div class="ph-body">
+            <div class="banner banner-err" style="margin-bottom:var(--sp-4)">
+              <span>✕</span><div><strong>Can't reach the board.</strong> Use the arrow keys on the classroom computer to keep going — your script is still here.</div></div>
+            <div class="ph-meta"><span class="ph-page">Slide 5 of 8</span></div>
+            <div class="script"><p>Read it, then <span class="cue">stop.</span> Do not answer your own question.</p></div>
+            <button class="btn" style="width:100%;margin-top:var(--sp-4)">Try again</button>
+          </div>
+          <div class="ph-ctl"><button class="btn btn-prev"><span class="gprev"></span></button>
+            <button class="btn">Read ahead <span class="gnext"></span></button></div>
+        </div></div>
+      </div>
+      <div>
+        <div class="frame-label ctr">Board · session ended</div>
+        <div class="frame frame-phone dark"><div class="ph" style="min-height:430px">
+          <div class="ph-body" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+            <div style="font-size:30px;opacity:.35;margin-bottom:14px">✓</div>
+            <h4 style="font-family:var(--font-display);font-size:20px;color:var(--ink-strong);margin:0 0 8px;font-weight:600">Lesson ended</h4>
+            <p style="font-size:14.5px;color:var(--ink-muted);margin:0 0 var(--sp-5);line-height:1.6">
+              The board is back to its pairing screen.</p>
+            <div class="close-block" style="text-align:start;margin-bottom:var(--sp-4)">
+              <div class="eyebrow">The Close</div>
+              <p style="font-size:15.5px">“Who is the one person it is hard for you to be kind to?”</p>
+            </div>
+            <button class="btn">Back to library</button>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="note"><strong>The rule that makes these states survivable:</strong> the script never disappears. Whatever the network does, the teacher keeps the words — they're rendered server-side into the page at load, not fetched per slide. Even fully offline the phone remains a usable teaching script, which is the same reason the printed sheet exists.<br><br><strong>Offline navigation is script-browsing only.</strong> "Read ahead" moves the <em>script</em>, never claims to move the board — the board is on the arrow keys now. On reconnect the phone resyncs to the server's <code>current_page</code> (what the class actually saw) with a brief "back on slide N" notice; the phone rejoins the board's reality, not the other way round.<br><br><strong>Notice what "Disconnected" does not say:</strong> it doesn't say "check your connection." It gives the teacher the next physical action — walk to the PC, use the arrow keys — because they are standing in front of thirty children and cannot debug wifi.</div>
+  </section>
+
+  <!-- ══════════════════ PRINT ══════════════════ -->
+  <section class="screen" id="print">
+    <div class="screen-head"><h2>Printed script</h2>
+      <div class="meta">Route <code>/lessons/:id/print</code>. The brief lists "a printed sheet" as a legitimate teacher surface. It's the insurance against a dead projector <em>and</em> a dead phone, and it's about forty lines of print CSS.</div></div>
+    <div class="sheet">
+      <h1>Kindness When No One Claps</h1>
+      <div class="pmeta">Arête · Grade 6 · Unit 2: Kindness · Lesson 3 · ≈ 38 min · 8 slides</div>
+      <div style="border-inline-start:3px solid #B5502E;padding-inline-start:14px;margin-bottom:24px">
+        <div style="font-family:var(--font-ui);font-size:10px;text-transform:uppercase;
+          letter-spacing:.1em;color:#B5502E;font-weight:700;margin-bottom:5px">The Prime</div>
+        <p style="margin:0;font-size:14px;line-height:1.65">This lesson does not work if you teach it from above the students. Two things to protect — do not rescue the silence on Slide 5, and keep the handout private.</p>
+      </div>
+      <div class="pblock"><div class="pthumb">slide 4</div>
+        <div><div class="pn">SLIDE 4 · Kindness costs something · ≈ 4 min</div>
+        <p style="margin:0;font-size:14px;line-height:1.6">Let them list what kindness costs. Write three on the board. Don't editorialise.</p></div></div>
+      <div class="pblock"><div class="pthumb">slide 5</div>
+        <div><div class="pn">SLIDE 5 · When no one claps · ≈ 3 min</div>
+        <p style="margin:0;font-size:14px;line-height:1.6"><strong>Read it, then stop.</strong> Do not answer your own question. Let the room be quiet and a little uncomfortable — that discomfort is them meeting the real question. Count to ten before you speak.</p></div></div>
+      <div class="pblock" style="border-bottom:0"><div class="pthumb">slide 6</div>
+        <div><div class="pn">SLIDE 6 · A quiet experiment · ≈ 3 min</div>
+        <p style="margin:0;font-size:14px;line-height:1.6">A quiet experiment. One kindness this week that nobody will know about.</p></div></div>
+    </div>
+    <div class="note"><strong>Print-specific rules:</strong> <code>break-inside:avoid</code> per slide block so a script never splits across pages; black on white regardless of theme; chrome hidden; and logical CSS properties still apply — print stylesheets are the most common place RTL discipline silently lapses.<br><br><strong>Data sources:</strong> each block's title and "≈ N min" come from <code>Slide#title</code> and <code>Slide#suggested_seconds</code> (both optional — the line collapses when nil); <code>**asterisks**</code> stage directions render bold. The header's "≈ 38 min" is <code>Lesson#estimated_minutes</code>, exact.</div>
+  </section>
+
+  <!-- ══════════════════ ADMIN LIST ══════════════════ -->
+  <section class="screen" id="adminlist">
+    <div class="screen-head"><h2>Admin · lesson index</h2>
+      <div class="meta">Route <code>/admin/lessons</code>, super_admin only. Visually distinct chrome from the teacher app — a darker bar and an "Admin" mark — so it's never ambiguous which mode you're in. This is where the Mīzān team lives.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar" style="background:var(--surface-3)">
+        <div class="brand">Mīzān<span class="dot">.</span> <span style="font-family:var(--font-ui);font-size:10.5px;
+          text-transform:uppercase;letter-spacing:.09em;background:var(--ink-strong);color:var(--surface);
+          padding:2px 7px;border-radius:3px;margin-inline-start:6px;vertical-align:middle">Admin</span></div>
+        <nav class="appnav"><a class="on">Lessons</a><a>Structure</a><a>People</a><a>Schools</a></nav>
+        <div class="spacer"></div>
+        <a class="btn btn-ghost" style="font-size:13px"><span class="gback"></span> Teacher view</a>
+        <div class="avatar">MZ</div>
+      </div>
+      <div class="pad"><div class="wrap-wide">
+        <div class="hstack" style="margin-bottom:var(--sp-5)">
+          <h3 class="sec" style="margin:0">Lessons</h3>
+          <span class="chip">260 total</span><span class="chip chip-draft">38 drafts</span>
+          <div class="spacer"></div>
+          <button class="btn">Import from files…</button>
+          <button class="btn btn-primary">New lesson</button>
+        </div>
+        <div class="hstack" style="margin-bottom:var(--sp-4)">
+          <input class="input" placeholder="Search…" style="max-width:260px">
+          <select class="select" style="width:auto"><option>All tracks</option></select>
+          <select class="select" style="width:auto"><option>All grades</option></select>
+          <select class="select" style="width:auto"><option>All statuses</option></select>
+          <select class="select" style="width:auto"><option>EN</option></select>
+        </div>
+        <div class="list">
+          <div class="row"><div class="body">
+            <div class="t">Kindness When No One Claps</div>
+            <div class="s">ARETE-G6-U2-L3 · Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2 · 8 slides · 1 handout</div></div>
+            <div class="end"><span class="chip chip-live">Published</span><span class="chip">EN</span></div></div>
+          <div class="row"><div class="body">
+            <div class="t">Kindness That Costs Something</div>
+            <div class="s">ARETE-G6-U2-L4 · Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2 · 9 slides</div></div>
+            <div class="end"><span class="chip chip-live">Published</span><span class="chip">EN</span></div></div>
+          <div class="row" style="background:var(--warning-soft)"><div class="body">
+            <div class="t">اللطف حين لا يصفّق أحد</div>
+            <div class="s">ARETE-G6-U2-L3 · Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2 · <strong>no deck uploaded</strong></div></div>
+            <div class="end"><span class="chip chip-draft">Draft</span><span class="chip">AR</span></div></div>
+          <div class="row"><div class="body">
+            <div class="t">Where Kindness Begins</div>
+            <div class="s">ARETE-G6-U2-L5 · Arête<span class="tsep"></span>Grade 6<span class="tsep"></span>Unit 2 · 6 slides · notes 2 / 6</div></div>
+            <div class="end"><span class="chip chip-draft">Draft</span><span class="chip">EN</span></div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="note"><strong>The column that earns its place: authoring completeness.</strong> "notes 2 / 6" tells the team at a glance which lessons have decks but no scripts — the most common half-finished state across 260 lessons, and invisible in a plain published/draft flag. Pair it with a locale column so the EN/AR gap is visible on one screen; that gap is the thing most likely to drift.</div>
+  </section>
+
+  <!-- ══════════════════ ADMIN FORM ══════════════════ -->
+  <section class="screen" id="adminform">
+    <div class="screen-head"><h2>Admin · lesson form &amp; deck ingest</h2>
+      <div class="meta">Metadata plus the PDF upload that generates every slide. Ingest is a background job (~1.3s for 15 pages), so the page needs a real processing state rather than a frozen form.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar" style="background:var(--surface-3)">
+        <div class="brand">Mīzān<span class="dot">.</span> <span style="font-family:var(--font-ui);font-size:10.5px;
+          text-transform:uppercase;letter-spacing:.09em;background:var(--ink-strong);color:var(--surface);
+          padding:2px 7px;border-radius:3px;margin-inline-start:6px;vertical-align:middle">Admin</span></div>
+        <nav class="appnav"><a class="on">Lessons</a><a>Structure</a><a>People</a><a>Schools</a></nav>
+        <div class="spacer"></div><div class="avatar">MZ</div>
+      </div>
+      <div class="pad"><div class="wrap">
+        <div class="crumb"><a>Lessons</a><span class="sep"></span><span>Kindness When No One Claps</span></div>
+        <div class="hstack" style="margin-bottom:var(--sp-5)">
+          <h3 class="sec" style="margin:0">Edit lesson</h3>
+          <span class="chip chip-live">Published</span>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost">Preview as teacher</button>
+          <button class="btn btn-primary">Save</button>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Title</label><input class="input" value="Kindness When No One Claps"></div>
+          <div class="field"><label>Code</label><input class="input" value="ARETE-G6-U2-L3">
+            <div class="hint">Shared with the Arabic edition. Changing it breaks the pairing.</div></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Unit</label><select class="select"><option>Arête › Grade 6 › Unit 2: Kindness</option></select></div>
+          <div class="grid2">
+            <div class="field"><label>Position</label><input class="input" value="3"></div>
+            <div class="field"><label>Locale</label><select class="select"><option>English</option></select></div>
+          </div>
+        </div>
+        <div class="field"><label>The Prime — read before class</label>
+          <textarea class="textarea" style="min-height:96px">This lesson does not work if you teach it from above the students…</textarea></div>
+        <div class="field"><label>Close prompt</label>
+          <textarea class="textarea" style="min-height:56px">Who is the one person it is hard for you to be kind to?</textarea></div>
+        <div class="grid2">
+          <div class="field"><label>Estimated minutes</label><input class="input" value="38"></div>
+          <div class="field"><label>Tags</label><input class="input" value="kindness, virtue, community">
+            <div class="hint">Comma separated.</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="field">
+          <label>Deck (PDF)</label>
+          <div class="card" style="padding:var(--sp-4)">
+            <div class="hstack">
+              <span style="font-size:22px">▤</span>
+              <div style="flex:1">
+                <div style="font-size:14.5px;font-weight:600;color:var(--ink-strong)">kindness-g6-l3.pdf</div>
+                <div style="font-size:12.5px;color:var(--ink-muted)">8 pages · uploaded 2 days ago · slides generated</div>
+              </div>
+              <button class="btn">Replace</button>
+            </div>
+            <div class="banner banner-ok" style="margin-top:12px">
+              <span>✓</span><div>Replacing the deck regenerates slide images but <strong>never erases typed notes</strong> — they're matched by page number.</div></div>
+          </div>
+        </div>
+        <div class="field"><label>Materials</label>
+          <div class="list"><div class="row"><div class="body">
+            <div class="t">One Hard Person — half-page handout.pdf</div>
+            <div class="s">84 KB · the filename is the label teachers see</div></div>
+            <div class="end"><button class="btn btn-ghost">Remove</button></div></div></div>
+          <div class="hint">Name files the way you want them read — the filename is the label.</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="note"><strong>Two states this screen also needs:</strong> <em>processing</em> ("Rendering page 9 of 15…", with the notes table live and typeable, since notes survive), and <em>failed</em> (a clear "poppler is not installed on the server" rather than a silent empty slide list — M3 requires the job to fail loudly).<br><br><strong>And note what's absent:</strong> no slide add/remove/reorder UI anywhere. Slides come only from the deck. That single constraint is what shrinks the CMS from weeks to days.</div>
+  </section>
+
+  <!-- ══════════════════ NOTES EDITOR ══════════════════ -->
+  <section class="screen" id="notes">
+    <div class="screen-head"><h2>Admin · notes editor</h2>
+      <div class="meta">The entire teacher-script authoring interface: one row per page, thumbnail on the left, textarea on the right, autosave on blur. No nested forms, no drag handles, no add/remove — because <code>page_number</code> is the ordering and the PDF defines it.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar" style="background:var(--surface-3)">
+        <div class="brand">Mīzān<span class="dot">.</span> <span style="font-family:var(--font-ui);font-size:10.5px;
+          text-transform:uppercase;letter-spacing:.09em;background:var(--ink-strong);color:var(--surface);
+          padding:2px 7px;border-radius:3px;margin-inline-start:6px;vertical-align:middle">Admin</span></div>
+        <nav class="appnav"><a class="on">Lessons</a><a>Structure</a><a>People</a><a>Schools</a></nav>
+        <div class="spacer"></div><div class="avatar">MZ</div>
+      </div>
+      <div class="pad"><div class="wrap-wide">
+        <div class="crumb"><a>Lessons</a><span class="sep"></span><a>Kindness When No One Claps</a>
+          <span class="sep"></span><span>Notes</span></div>
+        <div class="hstack" style="margin-bottom:var(--sp-4)">
+          <h3 class="sec" style="margin:0">Teacher notes</h3>
+          <span class="chip">8 pages</span><span class="chip chip-live">6 written</span>
+          <span class="chip chip-draft">2 empty</span><span class="chip">6 titled · 6 timed</span>
+          <div class="spacer"></div>
+          <span style="font-size:12.5px;color:var(--ink-muted)">Saves as you type</span>
+        </div>
+        <div class="ntable">
+          <div class="nrow">
+            <div class="nthumb">page 4</div>
+            <div>
+              <div class="nmeta">
+                <input class="input ntitle" value="Kindness costs something" placeholder="Slide title — shown on the phone and in print">
+                <input class="input nmin" value="4" inputmode="numeric"><span class="unit">min</span>
+              </div>
+              <textarea class="textarea">Let them list what kindness costs. Write three on the board. Don't editorialise.</textarea>
+            </div>
+            <div class="nstat saved">✓ Saved</div>
+          </div>
+          <div class="nrow" style="background:var(--surface-2)">
+            <div class="nthumb" style="border:2px solid var(--accent)">page 5</div>
+            <div>
+              <div class="nmeta">
+                <input class="input ntitle" value="When no one claps" placeholder="Slide title — shown on the phone and in print">
+                <input class="input nmin" value="3" inputmode="numeric"><span class="unit">min</span>
+              </div>
+              <textarea class="textarea" style="min-height:118px">Read it, then **stop.** Do not answer your own question. Let the room be quiet and a little uncomfortable — that discomfort is them meeting the real question. Count to ten before you speak.</textarea>
+            </div>
+            <div class="nstat">Editing…</div>
+          </div>
+          <div class="nrow">
+            <div class="nthumb">page 6</div>
+            <div>
+              <div class="nmeta">
+                <input class="input ntitle" placeholder="Slide title — shown on the phone and in print">
+                <input class="input nmin" inputmode="numeric" placeholder="—"><span class="unit">min</span>
+              </div>
+              <textarea class="textarea" placeholder="What does the teacher say and do on this slide? Wrap stage directions in **asterisks**."></textarea>
+            </div>
+            <div class="nstat" style="color:var(--warning)">Empty</div>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:14px">Text in <strong>**asterisks**</strong> renders as a stage direction on the teacher's phone — a cue to act, not words to read aloud. Titles and minutes are their own fields (<code>Slide#title</code>, <code>Slide#suggested_seconds</code>), not notes markup; both are optional and both survive deck re-ingest, matched by page number.</p>
+      </div></div>
+    </div>
+    <div class="note"><strong>The one convention worth agreeing with the Mīzān team now:</strong> a lightweight markup for stage directions. Their scripts already mix two registers — words to say ("Most real kindness gets no credit") and things to do ("Read it, then stop. Count to ten"). On a phone glanced at for two seconds, those must look different. Deciding this during authoring costs nothing; retrofitting it across 260 lessons costs a lot.<br><br><strong>Also worth adding:</strong> a per-row character count or read-time estimate. A note longer than the phone screen means scrolling mid-lesson, which is exactly what the companion is meant to prevent.</div>
+  </section>
+
+  <!-- ══════════════════ PEOPLE ══════════════════ -->
+  <section class="screen" id="people">
+    <div class="screen-head"><h2>Admin · people &amp; invitations</h2>
+      <div class="meta">School admins invite teachers; super_admins invite school admins. Small screen, real security surface — M5 tests that a school_admin cannot mint a super_admin.</div></div>
+    <div class="frame frame-desktop">
+      <div class="appbar" style="background:var(--surface-3)">
+        <div class="brand">Mīzān<span class="dot">.</span> <span style="font-family:var(--font-ui);font-size:10.5px;
+          text-transform:uppercase;letter-spacing:.09em;background:var(--ink-strong);color:var(--surface);
+          padding:2px 7px;border-radius:3px;margin-inline-start:6px;vertical-align:middle">Admin</span></div>
+        <nav class="appnav"><a>Lessons</a><a>Structure</a><a class="on">People</a><a>Schools</a></nav>
+        <div class="spacer"></div><div class="avatar">MZ</div>
+      </div>
+      <div class="pad"><div class="wrap">
+        <div class="hstack" style="margin-bottom:var(--sp-5)">
+          <h3 class="sec" style="margin:0">People</h3>
+          <span class="chip">Nasr City International School</span>
+          <div class="spacer"></div>
+          <button class="btn btn-primary">Invite teacher</button>
+        </div>
+        <div class="list">
+          <div class="row"><div class="body"><div class="t">Nour Abdelrahman</div>
+            <div class="s">nour@ncis.edu.eg · last signed in yesterday</div></div>
+            <div class="end"><span class="chip">Teacher</span></div></div>
+          <div class="row"><div class="body"><div class="t">Yasmine Farouk</div>
+            <div class="s">yasmine@ncis.edu.eg · last signed in 3 weeks ago</div></div>
+            <div class="end"><span class="chip">School admin</span></div></div>
+          <div class="row" style="background:var(--warning-soft)"><div class="body">
+            <div class="t">omar@ncis.edu.eg</div>
+            <div class="s">Invited 2 days ago · expires in 5 days</div></div>
+            <div class="end"><span class="chip chip-draft">Pending</span>
+              <button class="btn btn-ghost" style="font-size:12.5px">Resend</button></div></div>
+        </div>
+        <div class="card" style="margin-top:var(--sp-5)">
+          <div class="eyebrow">Invite a teacher</div>
+          <div class="grid2" style="margin-top:12px">
+            <div class="field" style="margin:0"><label>Email</label><input class="input" placeholder="name@school.eg"></div>
+            <div class="field" style="margin:0"><label>Role</label><select class="select"><option>Teacher</option></select></div>
+          </div>
+          <div class="hstack" style="margin-top:var(--sp-4)">
+            <button class="btn btn-primary">Send invitation</button>
+            <span class="hint" style="margin:0">The link expires in 7 days.</span>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="note"><strong>Minimal by design, and that's a legal position, not a scope cut.</strong> Name, email, role, school — nothing else. Under Egypt's PDPL every additional personal field is data you must justify, secure, and cover under a cross-border transfer permit. "Last signed in" is the most granular behavioural data in the product, and there is no student PII anywhere.</div>
+  </section>
+
+  </main>
+</div>
+
+<script>
+function go(id, el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelector('.stage').scrollTo(0,0); window.scrollTo(0,0);
+}
+var st={theme:'light',dir:'ltr'};
+function tog(what){
+  if(what==='theme'){
+    st.theme = st.theme==='light' ? 'dark' : 'light';
+    document.querySelectorAll('.stage .frame').forEach(f=>{
+      // board + phone frames are always dark; only browse frames respond
+      if(!f.classList.contains('frame-board') && !f.classList.contains('frame-phone')){
+        f.classList.toggle('dark', st.theme==='dark');
+      }
+    });
+    var b=document.getElementById('tTheme');
+    b.textContent = st.theme==='dark' ? '☾ Dark' : '☀ Light';
+    b.classList.toggle('on', st.theme==='dark');
+  } else {
+    st.dir = st.dir==='ltr' ? 'rtl' : 'ltr';
+    document.querySelectorAll('.stage .frame').forEach(f=>f.setAttribute('dir',st.dir));
+    document.querySelector('.sheet').setAttribute('dir',st.dir);
+    var b=document.getElementById('tDir');
+    b.textContent = st.dir.toUpperCase();
+    b.classList.toggle('on', st.dir==='rtl');
+  }
+}
+</script>
+</body>
+</html>

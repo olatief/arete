@@ -14,9 +14,19 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 # Rails app lives here
 WORKDIR /rails
 
-# Install base packages
+# Install base packages.
+#
+# The Postgres client comes from PGDG, not Debian. Trixie's `postgresql-client`
+# is 17, and pg_dump refuses to dump a server newer than itself — the M5 nightly
+# backup would abort against our Postgres 18 database. Keep this major version in
+# step with `postgresMajorVersion` in render.yaml.
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
+    apt-get install --no-install-recommends -y curl ca-certificates && \
+    install -d /usr/share/postgresql-common/pgdg && \
+    curl -fsS -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y libjemalloc2 libvips postgresql-client-18 && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
