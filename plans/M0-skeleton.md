@@ -18,7 +18,10 @@ file.
 rails new . --database=postgresql --css=tailwind --skip-kamal --skip-solid
 ```
 
-- Pin in `Gemfile` / `.ruby-version`: **Ruby 3.4.10**, **Rails ~> 8.1.3**.
+- Pin in `Gemfile` / `.ruby-version`: **Ruby 4.0.6**, **Rails ~> 8.1.3**. Ruby 4
+  is ahead of some gems' stated compatibility matrices — if `bundle install` or
+  boot hits a gem that genuinely can't run on 4.x, surface it rather than
+  silently downgrading Ruby.
 - `--skip-solid` then install Solid Queue + Solid Cache explicitly (next section) so
   Solid Cable is never added.
 - Importmap + Propshaft are the defaults — verify no `vite`/`node` artifacts exist.
