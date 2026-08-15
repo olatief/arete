@@ -9,6 +9,14 @@
 
 require_relative "data/kindness_lesson_data"
 
+# The DB can outlive the blob files (an ephemeral disk wiped on redeploy, or a
+# seed run on a different instance): the attachment row survives while the
+# file is gone, so an `attached?` guard alone can never heal it. Purging the
+# dead attachment lets the attach guards below re-upload.
+purge_if_file_missing = ->(attachment) do
+  attachment.purge if attachment.attached? && !attachment.blob.service.exist?(attachment.blob.key)
+end
+
 arete = Track.find_by!(slug: "arete")
 
 unit = Unit.find_or_create_by!(
@@ -41,6 +49,7 @@ KindnessLessonData::SLIDES.each do |attrs|
   slide.assign_attributes(attrs.except(:page_number))
   slide.save! if slide.changed?
 
+  purge_if_file_missing.call(slide.image)
   unless slide.image.attached?
     slide.image.attach(
       io: File.open(KindnessLessonData.slide_image_file(attrs[:page_number])),
@@ -50,6 +59,7 @@ KindnessLessonData::SLIDES.each do |attrs|
   end
 end
 
+purge_if_file_missing.call(lesson.deck)
 unless lesson.deck.attached?
   lesson.deck.attach(
     io: File.open(KindnessLessonData::DECK_FILE),

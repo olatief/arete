@@ -43,6 +43,8 @@ gem "thruster", require: false
 gem "image_processing", "~> 2.0"
 gem "ruby-vips"
 
+gem "aws-sdk-s3", require: false   # R2 is S3-compatible
+
 # Authorization [https://github.com/varvet/pundit]
 gem "pundit", "~> 2.5"
 
