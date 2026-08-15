@@ -31,6 +31,11 @@ threads threads_count, threads_count
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
 
+# Copy-on-write matters on a 512MB instance: boot the app once in the master
+# so both web workers share most of their memory pages. Explicit rather than
+# relying on Puma's cluster-mode default; no-op without workers.
+preload_app! if ENV["WEB_CONCURRENCY"].to_i > 1
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 

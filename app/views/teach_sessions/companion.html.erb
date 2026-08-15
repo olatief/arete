@@ -47,7 +47,7 @@
                  data-title="<%= slide.title.presence || t(".slide_fallback", page: slide.page_number) %>"
                  data-suggested-seconds="<%= slide.suggested_seconds %>"
                  class="<%= "hidden" unless slide.page_number == @teach_session.current_page %>">
-          <img src="<%= url_for(slide.image.variant(resize_to_limit: [ 480, 270 ])) %>"
+          <img src="<%= url_for(slide.image.variant(:preview)) %>"
                alt="<%= slide.title.presence || t(".slide_fallback", page: slide.page_number) %>"
                class="mb-4 w-full max-w-60 rounded border border-teach-border">
           <% if slide.notes.present? %>

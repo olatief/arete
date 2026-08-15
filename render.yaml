@@ -13,12 +13,14 @@ databases:
 services:
   - type: web
     name: arete
-    runtime: ruby
+    # Docker, not the native Ruby runtime: the Dockerfile ships a current
+    # libvips (variants), poppler (M3 deck ingest), and jemalloc via
+    # LD_PRELOAD — none of which the native runtime provides.
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: starter
     region: frankfurt
-    buildCommand: bundle install && bin/rails assets:precompile
     preDeployCommand: bin/rails db:migrate
-    startCommand: bundle exec thrust bin/rails server
     healthCheckPath: /up
     envVars:
       - key: RAILS_MASTER_KEY
@@ -35,3 +37,12 @@ services:
       # store) must surface, not hide behind a single worker.
       - key: WEB_CONCURRENCY
         value: "2"
+      # Thruster (the Dockerfile CMD) listens on HTTP_PORT and starts Puma on
+      # an internal target port. Render routes public traffic to PORT, which
+      # defaults to 10000 — point Thruster there.
+      - key: HTTP_PORT
+        value: "10000"
+      # Cap vips' thread pool: variant transforms run in-process on a
+      # memory-constrained instance.
+      - key: VIPS_CONCURRENCY
+        value: "1"
