@@ -24,6 +24,11 @@ en:
 
   teach_sessions:
     ended_notice: "Lesson ended."
+    resume:
+      same_lesson: "You're still paired with the board for this lesson."
+      other_lesson: "You're mid-lesson in “%{title}”."
+      action: "Resume on slide %{page}"
+      end_action: "End that session"
     pair:
       not_found: "Code not found or expired."
       no_slides: "This lesson has no slides yet."

@@ -26,6 +26,16 @@ class TeachSession < ApplicationRecord
   # the sweep job deletes only expired never-paired sessions.
   scope :taught, -> { where.not(paired_at: nil) }
 
+  # A teacher's in-progress sessions, most recently active first. Resumption
+  # rides the login, not the device or the pairing code: a closed tab (or a
+  # dead phone, from any signed-in device) gets back to the companion without
+  # re-pairing — the code authenticated the board, never the phone.
+  scope :live_for, ->(user) {
+    where(teacher: user, ended_at: nil)
+      .where(expires_at: Time.current..)
+      .order(last_seen_at: :desc)
+  }
+
   def self.generate_pairing_code
     Array.new(PAIRING_CODE_LENGTH) {
       PAIRING_CODE_ALPHABET[SecureRandom.random_number(PAIRING_CODE_ALPHABET.length)]

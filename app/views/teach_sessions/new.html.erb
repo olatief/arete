@@ -10,6 +10,25 @@
     <p class="mt-2 text-teach-muted"><%= @lesson.title %></p>
   </div>
 
+  <% if @resumable %>
+    <div class="rounded-[14px] border border-teach-accent/40 bg-teach-surface p-4">
+      <p class="text-sm">
+        <% if @resumable.lesson_id == @lesson.id %>
+          <%= t("teach_sessions.resume.same_lesson") %>
+        <% else %>
+          <%= t("teach_sessions.resume.other_lesson", title: @resumable.lesson.title) %>
+        <% end %>
+      </p>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <%= link_to t("teach_sessions.resume.action", page: @resumable.current_page),
+              companion_teach_session_path(@resumable), data: { turbo: false },
+              class: "rounded-lg bg-teach-accent px-4 py-3 font-semibold text-teach-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent" %>
+        <%= button_to t("teach_sessions.resume.end_action"), finish_teach_session_path(@resumable), method: :patch,
+              class: "cursor-pointer rounded-lg border border-teach-border px-4 py-3 text-teach-muted hover:text-teach-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent" %>
+      </div>
+    </div>
+  <% end %>
+
   <p class="text-teach-muted"><%= t(".instruction") %></p>
 
   <%= form_with url: pair_teach_sessions_path, method: :post, data: { turbo: false } do |f| %>

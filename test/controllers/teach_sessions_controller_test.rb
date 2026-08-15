@@ -192,6 +192,65 @@ class TeachSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :gone
   end
 
+  test "teach form offers resume instead of a code when a live session exists" do
+    teach_session = pair!
+
+    get lesson_teach_path(@lesson)
+    assert_response :success
+    assert_includes response.body, ERB::Util.html_escape(I18n.t("teach_sessions.resume.same_lesson"))
+    assert_includes response.body, companion_teach_session_path(teach_session)
+  end
+
+  test "resume names the lesson when the live session is for another lesson" do
+    pair!
+    other = @lesson.unit.lessons.create!(
+      position: 9, code: "AR-G06-U2-L09", locale: "en",
+      title: "A Different Lesson", published_at: Time.current
+    )
+
+    get lesson_teach_path(other)
+    assert_includes response.body, ERB::Util.html_escape(I18n.t("teach_sessions.resume.other_lesson", title: @lesson.title))
+  end
+
+  test "no resume is offered for ended or expired sessions" do
+    teach_session = pair!
+    patch finish_teach_session_path(teach_session)
+
+    get lesson_teach_path(@lesson)
+    assert_not_includes response.body, ERB::Util.html_escape(I18n.t("teach_sessions.resume.same_lesson"))
+
+    stale = pair!
+    travel 13.hours do
+      get lesson_teach_path(@lesson)
+      assert_not_includes response.body, companion_teach_session_path(stale)
+    end
+  end
+
+  test "resume is scoped to the signed-in teacher" do
+    teach_session = pair!
+    sign_in_as users(:two)
+
+    get lesson_teach_path(@lesson)
+    assert_not_includes response.body, companion_teach_session_path(teach_session)
+  end
+
+  test "the dashboard offers resume for a live session" do
+    teach_session = pair!
+
+    get root_path
+    assert_includes response.body, I18n.t("teach_sessions.resume.action", page: teach_session.current_page)
+    assert_includes response.body, companion_teach_session_path(teach_session)
+  end
+
+  test "ending a stale session from the teach form returns to the form" do
+    teach_session = pair!
+
+    patch finish_teach_session_path(teach_session),
+          headers: { "HTTP_REFERER" => lesson_teach_path(@lesson) }
+    assert_redirected_to lesson_teach_path(@lesson)
+    assert teach_session.reload.ended?
+  end
+
   test "companion renders every note server-side at load" do
     attach_slide_images!
     teach_session = pair!

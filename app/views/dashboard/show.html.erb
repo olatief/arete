@@ -8,6 +8,17 @@
   <p class="mt-6 text-gray-700"><%= t(".welcome", app_name: t("app_name")) %></p>
   <p class="mt-2 text-sm text-gray-500"><%= t(".signed_in_as", email: Current.user.email_address) %></p>
 
+  <% if @resumable_session %>
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
+      <p class="text-sm text-amber-900">
+        <%= t("teach_sessions.resume.other_lesson", title: @resumable_session.lesson.title) %>
+      </p>
+      <%= link_to t("teach_sessions.resume.action", page: @resumable_session.current_page),
+            companion_teach_session_path(@resumable_session), data: { turbo: false },
+            class: "rounded-md bg-amber-600 px-3.5 py-2 font-medium text-white" %>
+    </div>
+  <% end %>
+
   <%# Stopgap until M2's library ships: the lesson page's Teach button is the
       real entry point; this list only makes /lessons/:id/teach reachable. %>
   <% teachable_lessons = policy_scope(Lesson).joins(:slides).distinct.order(:title) %>

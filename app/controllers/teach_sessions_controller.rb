@@ -9,10 +9,13 @@ class TeachSessionsController < ApplicationController
 
   layout "presenter"
 
-  # Code entry form, reached from a lesson's Teach button.
+  # Code entry form, reached from a lesson's Teach button. If this teacher
+  # already has a live session, offer to resume it instead of pairing —
+  # but never auto-redirect: they may be here to pair a different board.
   def new
     @lesson = find_lesson(params[:lesson_id])
     authorize @lesson, :teach?
+    @resumable = TeachSession.live_for(Current.user).includes(:lesson).first
   end
 
   def pair
@@ -85,7 +88,9 @@ class TeachSessionsController < ApplicationController
       teach_session.update!(ended_at: Time.current, expires_at: Time.current)
       TeachSessionChannel.broadcast_to(teach_session, { ended: true })
     end
-    redirect_to root_path, notice: t("teach_sessions.ended_notice")
+    # Back where they ended from: the companion bounces to the library once
+    # ended; ending a stale session from the teach form stays on the form.
+    redirect_back_or_to root_path, notice: t("teach_sessions.ended_notice")
   end
 
   private

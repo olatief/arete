@@ -101,6 +101,31 @@ class PresenterTest < ApplicationSystemTestCase
     assert_text I18n.t("teach_sessions.companion.start"), wait: 10
   end
 
+  # A closed companion tab is not a lost lesson: resumption rides the login,
+  # not the pairing code — the teach form offers the live session back.
+  test "a closed companion tab resumes without a new pairing code" do
+    code = open_board
+    pair_phone(code)
+    click_on I18n.t("teach_sessions.companion.start")
+    assert_text "1 / 8", wait: 10
+    click_on I18n.t("teach_sessions.companion.next")
+    assert_text "2 / 8", wait: 10
+
+    # "Close the tab": navigate away, losing all client state.
+    visit lesson_teach_path(@lesson)
+    assert_text I18n.t("teach_sessions.resume.same_lesson")
+
+    click_on I18n.t("teach_sessions.resume.action", page: 2)
+    assert_text "2 / 8", wait: 10
+
+    # Phone and board still agree after the round trip.
+    click_on I18n.t("teach_sessions.companion.next")
+    assert_text "3 / 8", wait: 10
+    using_session(:board) do
+      assert_selector "img.slide-layer.is-active[data-page='3']", wait: 10
+    end
+  end
+
   private
     def open_board
       using_session(:board) do
