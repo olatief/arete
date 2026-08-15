@@ -8,5 +8,20 @@
   <p class="mt-6 text-gray-700"><%= t(".welcome", app_name: t("app_name")) %></p>
   <p class="mt-2 text-sm text-gray-500"><%= t(".signed_in_as", email: Current.user.email_address) %></p>
 
+  <%# Stopgap until M2's library ships: the lesson page's Teach button is the
+      real entry point; this list only makes /lessons/:id/teach reachable. %>
+  <% teachable_lessons = policy_scope(Lesson).joins(:slides).distinct.order(:title) %>
+  <% if teachable_lessons.any? %>
+    <h2 class="mt-10 text-xl font-semibold"><%= t(".teach_heading") %></h2>
+    <ul class="mt-3 space-y-2">
+      <% teachable_lessons.each do |lesson| %>
+        <li class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 px-4 py-3">
+          <span><%= lesson.title %></span>
+          <%= link_to t(".teach"), lesson_teach_path(lesson), class: "rounded-md bg-gray-900 px-3.5 py-2 text-white font-medium" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
   <%= button_to t(".sign_out"), session_path, method: :delete, class: "mt-8 rounded-md px-3.5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium cursor-pointer" %>
 </div>

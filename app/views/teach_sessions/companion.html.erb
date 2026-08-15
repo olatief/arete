@@ -1,0 +1,133 @@
+<% content_for :title, @lesson.title %>
+
+<%# Every note and title is rendered into this authenticated page at load —
+    that is how lesson content stays off the wire. The cable only ever moves
+    { page: N } (CLAUDE.md rules 1 & 5). %>
+<div class="mx-auto flex min-h-svh w-full max-w-xl flex-col"
+     data-controller="companion"
+     data-companion-page-value="<%= @teach_session.current_page %>"
+     data-companion-page-count-value="<%= @slides.size %>"
+     data-companion-started-value="<%= @teach_session.started? %>"
+     data-companion-token-value="<%= @teach_session.signed_id(purpose: :board_stream, expires_in: TeachSession::SESSION_TTL) %>"
+     data-companion-update-url-value="<%= teach_session_path(@teach_session) %>"
+     data-companion-state-url-value="<%= state_teach_session_path(@teach_session) %>"
+     data-companion-strings-value="<%= {
+       connected: t(".connected"), reconnecting: t(".reconnecting"),
+       disconnected: t(".disconnected"), back_on: t(".back_on"),
+       announce: t(".announce"), end_of_deck: t(".end_of_deck"),
+       next_up: t(".next_up")
+     }.to_json %>">
+
+  <header class="flex items-center gap-3 border-b border-teach-border px-4 py-3 text-sm">
+    <span class="flex items-center gap-2" data-companion-target="indicator">
+      <span class="inline-block size-2.5 rounded-full bg-conn-warn" data-companion-target="indicatorDot"></span>
+      <span class="text-teach-muted" data-companion-target="indicatorLabel"><%= t(".reconnecting") %></span>
+    </span>
+    <span class="hidden rounded-full border border-teach-border px-2 py-0.5 text-xs text-teach-muted"
+          data-companion-target="awake"><%= t(".awake") %></span>
+    <span class="ms-auto tabular-nums text-teach-muted" data-companion-target="timer"></span>
+  </header>
+
+  <% if @teach_session.started? %>
+    <div class="flex items-baseline justify-between gap-3 px-4 pt-4">
+      <h1 class="truncate text-lg font-semibold" data-companion-target="title"></h1>
+      <span class="shrink-0 tabular-nums text-teach-muted" data-companion-target="counter"></span>
+    </div>
+    <p class="px-4 pt-1 text-sm text-teach-muted" data-companion-target="nextTitle"></p>
+
+    <p class="mx-4 mt-3 hidden rounded-lg border border-conn-warn/50 px-3 py-2 text-sm text-conn-warn"
+       data-companion-target="readAhead"><%= t(".read_ahead") %></p>
+    <p class="mx-4 mt-3 hidden rounded-lg border border-teach-border bg-teach-surface px-3 py-2 text-sm"
+       data-companion-target="resyncNotice"></p>
+
+    <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      <% @slides.each do |slide| %>
+        <section data-companion-target="page"
+                 data-page="<%= slide.page_number %>"
+                 data-title="<%= slide.title.presence || t(".slide_fallback", page: slide.page_number) %>"
+                 data-suggested-seconds="<%= slide.suggested_seconds %>"
+                 class="<%= "hidden" unless slide.page_number == @teach_session.current_page %>">
+          <img src="<%= url_for(slide.image.variant(resize_to_limit: [ 480, 270 ])) %>"
+               alt="<%= slide.title.presence || t(".slide_fallback", page: slide.page_number) %>"
+               class="mb-4 w-full max-w-60 rounded border border-teach-border">
+          <% if slide.notes.present? %>
+            <div class="script"><%= script_html(slide.notes) %></div>
+          <% else %>
+            <p class="text-teach-muted"><%= t(".notes_empty") %></p>
+          <% end %>
+        </section>
+      <% end %>
+
+      <details class="mt-6 border-t border-teach-border pt-4 text-sm">
+        <summary class="cursor-pointer text-teach-muted"><%= t(".prime_heading") %></summary>
+        <div class="script mt-2"><%= script_html(@lesson.prime) %></div>
+      </details>
+      <% if @lesson.close_prompt.present? %>
+        <details class="mt-3 text-sm">
+          <summary class="cursor-pointer text-teach-muted"><%= t(".close_prompt_heading") %></summary>
+          <div class="script mt-2"><%= script_html(@lesson.close_prompt) %></div>
+        </details>
+      <% end %>
+    </div>
+
+    <p class="sr-only" role="status" aria-live="polite" data-companion-target="live"></p>
+
+    <footer class="border-t border-teach-border px-4 py-3">
+      <div class="flex items-stretch gap-3">
+        <%# Next is large and thumb-reachable; Prev is deliberately smaller —
+            forward is 95% of taps (UX-SPEC §4.4). %>
+        <button type="button" data-action="companion#prev" aria-label="<%= t(".prev") %>"
+                class="h-14 w-24 shrink-0 cursor-pointer rounded-lg border border-teach-border text-xl text-teach-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent">
+          <span class="flip-rtl inline-block" aria-hidden="true">‹</span>
+        </button>
+        <button type="button" data-action="companion#next" aria-label="<%= t(".next") %>"
+                class="h-14 flex-1 cursor-pointer rounded-lg bg-teach-accent text-xl font-semibold text-teach-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent">
+          <%= t(".next") %> <span class="flip-rtl inline-block" aria-hidden="true">›</span>
+        </button>
+      </div>
+
+      <div class="mt-3 flex justify-end">
+        <button type="button" data-action="companion#confirmEnd"
+                class="cursor-pointer rounded px-3 py-2 text-sm text-teach-muted hover:text-conn-err focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent">
+          <%= t(".end") %>
+        </button>
+      </div>
+
+      <%# In-page confirm — browser dialogs are banned in the companion
+          (they block the cable). %>
+      <div class="mt-3 hidden rounded-lg border border-teach-border bg-teach-surface p-4" data-companion-target="endConfirm">
+        <p class="text-sm"><%= t(".confirm_end") %></p>
+        <div class="mt-3 flex gap-3">
+          <%= button_to t(".confirm"), finish_teach_session_path(@teach_session), method: :patch,
+                class: "cursor-pointer rounded-lg bg-conn-err px-4 py-2 font-semibold text-teach-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent" %>
+          <button type="button" data-action="companion#cancelEnd"
+                  class="cursor-pointer rounded-lg border border-teach-border px-4 py-2 text-teach-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent">
+            <%= t(".cancel") %>
+          </button>
+        </div>
+      </div>
+    </footer>
+  <% else %>
+    <%# Pre-flight: the teacher settles the room reading the prime; the board
+        holds on the wordmark until Start — a deliberate act (UX-SPEC §5.3). %>
+    <div class="flex flex-1 flex-col gap-6 px-4 py-6">
+      <div>
+        <h1 class="text-2xl font-semibold"><%= @lesson.title %></h1>
+        <p class="mt-1 text-sm text-teach-muted">
+          <%= t(".paired_ok") %>
+          <% if @lesson.estimated_minutes %>
+            · <%= t(".estimated_minutes", minutes: @lesson.estimated_minutes) %>
+          <% end %>
+        </p>
+      </div>
+
+      <div class="rounded-[14px] border border-teach-accent/40 bg-teach-surface p-4">
+        <h2 class="text-sm font-semibold text-teach-accent"><%= t(".prime_heading") %></h2>
+        <div class="script mt-2"><%= script_html(@lesson.prime) %></div>
+      </div>
+
+      <%= button_to t(".start"), start_teach_session_path(@teach_session), method: :patch,
+            class: "mt-auto h-14 w-full cursor-pointer rounded-lg bg-teach-accent text-lg font-semibold text-teach-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent" %>
+    </div>
+  <% end %>
+</div>

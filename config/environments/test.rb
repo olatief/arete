@@ -20,7 +20,11 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  config.cache_store = :null_store
+  # Not :null_store — rate_limit needs a store with atomic increment, and a
+  # null store disables limiting (and its tests) silently. One process per
+  # parallel test worker, so a per-process memory store is correct here;
+  # test_helper clears it between tests.
+  config.cache_store = :memory_store
 
   # Jobs use the inline test adapter here; Solid Queue everywhere else.
   config.active_job.queue_adapter = :test

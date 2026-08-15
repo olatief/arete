@@ -1,0 +1,26 @@
+<% content_for :title, @lesson.title %>
+
+<div class="mx-auto flex min-h-svh w-full max-w-md flex-col justify-center gap-6 px-6">
+  <% if alert = flash[:alert] %>
+    <p class="rounded-lg border border-conn-err/50 bg-teach-surface px-4 py-3 text-conn-err" role="alert"><%= alert %></p>
+  <% end %>
+
+  <div>
+    <h1 class="text-2xl font-semibold"><%= t(".title") %></h1>
+    <p class="mt-2 text-teach-muted"><%= @lesson.title %></p>
+  </div>
+
+  <p class="text-teach-muted"><%= t(".instruction") %></p>
+
+  <%= form_with url: pair_teach_sessions_path, method: :post, data: { turbo: false } do |f| %>
+    <%= f.hidden_field :lesson_id, value: @lesson.id %>
+    <%= f.label :code, t(".code_label"), class: "block text-sm text-teach-muted" %>
+    <%= f.text_field :code, dir: "ltr", autocomplete: "off", autocapitalize: "characters",
+          autofocus: true, spellcheck: false, maxlength: 8,
+          class: "mt-2 w-full rounded border border-teach-border bg-teach-surface px-4 py-3 text-center font-mono text-3xl tracking-[0.2em] uppercase focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent" %>
+    <%= f.submit t(".submit"),
+          class: "mt-6 w-full cursor-pointer rounded-lg bg-teach-accent px-4 py-4 text-lg font-semibold text-teach-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent" %>
+  <% end %>
+
+  <%= link_to t(".back"), root_path, class: "text-center text-sm text-teach-muted hover:text-teach-ink" %>
+</div>

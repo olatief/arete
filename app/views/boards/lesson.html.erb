@@ -1,0 +1,36 @@
+<%# Paired board: the slide and nothing else — no page counter, no branding,
+    no transitions. Every page image is in the DOM up front so a dropped
+    websocket never blanks the projector. Images are decorative here; the
+    student-facing content is the projection itself (UX-SPEC §5.5). %>
+<div class="fixed inset-0 bg-teach-bg"
+     data-controller="board"
+     data-board-state-value="<%= @teach_session.started? ? "teaching" : "holding" %>"
+     data-board-page-value="<%= @teach_session.current_page %>"
+     data-board-page-count-value="<%= @slides.size %>"
+     data-board-token-value="<%= @teach_session.signed_id(purpose: :board_stream, expires_in: TeachSession::SESSION_TTL) %>"
+     data-board-state-url-value="<%= board_state_path %>"
+     data-board-page-url-value="<%= board_page_path %>"
+     data-board-end-url-value="<%= board_end_path %>"
+     data-board-refresh-url-value="<%= board_path %>">
+
+  <div aria-hidden="true">
+    <% @slides.each do |slide| %>
+      <img src="<%= url_for(slide.image) %>" alt=""
+           data-board-target="slide"
+           data-page="<%= slide.page_number %>"
+           class="slide-layer <%= "is-active" if @teach_session.started? && slide.page_number == @teach_session.current_page %>">
+    <% end %>
+  </div>
+
+  <%# Holding screen: a neutral wordmark between pairing and the teacher's
+      deliberate Start — students shouldn't be reading slide 1 yet. %>
+  <div data-board-target="holding"
+       class="absolute inset-0 flex items-center justify-center bg-teach-bg <%= "hidden" if @teach_session.started? %>">
+    <p class="text-6xl font-semibold tracking-wide text-teach-muted"><%= t("app_name") %></p>
+  </div>
+
+  <button type="button" data-action="board#fullscreen"
+          class="absolute bottom-6 end-6 rounded-lg border border-teach-border px-4 py-3 text-sm text-teach-muted opacity-40 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent">
+    <%= t("boards.fullscreen") %>
+  </button>
+</div>

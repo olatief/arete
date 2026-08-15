@@ -12,6 +12,11 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    # Rate-limit counters live in the (memory) cache store; without this a
+    # test file that signs in or pairs repeatedly trips limits meant for
+    # attackers, not suites.
+    setup { Rails.cache.clear }
+
     # Add more helper methods to be used by all tests here...
   end
 end

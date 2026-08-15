@@ -1,1 +1,62 @@
 @import "tailwindcss";
+
+/* Teach-mode palette from docs/UX-SPEC.md §6 (dark) — the accent lightens to
+   hold contrast on the dark ground. */
+@theme {
+  --color-teach-bg: #14171C;
+  --color-teach-surface: #1C2027;
+  --color-teach-border: #333A45;
+  --color-teach-ink: #E8E2D8;
+  --color-teach-muted: #9AA1AC;
+  --color-teach-accent: #E0784F;
+  --color-conn-ok: #57B98A;
+  --color-conn-warn: #D9A741;
+  --color-conn-err: #E06055;
+  --font-script: "Spectral", Georgia, serif;
+}
+
+/* Board slide stack: every page is in the DOM, preloaded; advancing is a
+   class toggle with zero transition (a cross-fade on a projector reads as
+   lag). Images stay stacked, not display:none, so decode happens up front. */
+.slide-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+}
+.slide-layer.is-active {
+  opacity: 1;
+}
+
+/* Companion script register — sized for a two-second glance in a dim room
+   (UX-SPEC §4.4); do not shrink it to fit more on screen. */
+.script {
+  font-family: var(--font-script);
+  font-size: 20px;
+  line-height: 1.62;
+}
+.script .stage-direction {
+  font-weight: 600;
+  color: var(--color-teach-accent);
+}
+
+/* Directional glyphs (Prev/Next chevrons) mirror with reading direction —
+   in Arabic, "next" points left. */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* The board hides the cursor after 2s idle (UX-SPEC §4.3). */
+.cursor-hidden,
+.cursor-hidden * {
+  cursor: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

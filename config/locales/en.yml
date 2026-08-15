@@ -13,6 +13,49 @@ en:
       welcome: "Welcome to %{app_name}."
       signed_in_as: "Signed in as %{email}"
       sign_out: "Sign out"
+      teach_heading: "Teach a lesson"
+      teach: "Teach"
+
+  boards:
+    fullscreen: "Go fullscreen"
+    waiting:
+      instruction: "On your phone, open the lesson and tap Teach, then enter this code."
+      code_expires_in: "Code expires in"
+
+  teach_sessions:
+    ended_notice: "Lesson ended."
+    pair:
+      not_found: "Code not found or expired."
+      no_slides: "This lesson has no slides yet."
+    new:
+      title: "Pair with the board"
+      instruction: "Enter the code shown on the classroom screen."
+      code_label: "Pairing code"
+      submit: "Pair"
+      back: "Back to library"
+    companion:
+      paired_ok: "Paired with the board"
+      estimated_minutes: "≈ %{minutes} min"
+      prime_heading: "Before you teach"
+      close_prompt_heading: "Close prompt"
+      start: "Start lesson"
+      notes_empty: "No script for this slide."
+      prev: "Previous slide"
+      next: "Next"
+      end: "End lesson"
+      confirm_end: "End lesson? The board will clear."
+      confirm: "End now"
+      cancel: "Keep teaching"
+      slide_fallback: "Slide %{page}"
+      next_up: "Next: %{title}"
+      end_of_deck: "Last slide"
+      connected: "Connected"
+      reconnecting: "Reconnecting…"
+      disconnected: "Disconnected — use the arrow keys on the classroom computer to keep going"
+      awake: "Awake"
+      read_ahead: "Read ahead — the board hasn't moved"
+      back_on: "Back on slide %{page}"
+      announce: "Slide %{page} of %{count}"
 
   sessions:
     rate_limited: "Try again later."

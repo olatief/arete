@@ -1,0 +1,27 @@
+<%# Waiting to pair. The code must be legible from across the room (~78px,
+    grouped); it reads LTR in both locales. %>
+<div class="fixed inset-0 flex flex-col items-center justify-center gap-8"
+     data-controller="board"
+     data-board-state-value="waiting"
+     data-board-token-value="<%= @teach_session.signed_id(purpose: :board_stream, expires_in: TeachSession::SESSION_TTL) %>"
+     data-board-code-expires-in-value="<%= [ (@teach_session.expires_at - Time.current).floor, 0 ].max %>"
+     data-board-state-url-value="<%= board_state_path %>"
+     data-board-page-url-value="<%= board_page_path %>"
+     data-board-end-url-value="<%= board_end_path %>"
+     data-board-refresh-url-value="<%= board_path %>">
+
+  <p class="text-2xl text-teach-muted"><%= t(".instruction") %></p>
+
+  <p dir="ltr" class="font-mono tabular-nums tracking-[0.18em] text-[78px] leading-none font-semibold">
+    <%= @teach_session.pairing_code.scan(/.{1,3}/).join(" ") %>
+  </p>
+
+  <p class="text-lg text-teach-muted tabular-nums">
+    <%= t(".code_expires_in") %> <span data-board-target="countdown">–:––</span>
+  </p>
+
+  <button type="button" data-action="board#fullscreen"
+          class="absolute bottom-6 end-6 rounded-lg border border-teach-border px-4 py-3 text-sm text-teach-muted hover:text-teach-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teach-accent">
+    <%= t("boards.fullscreen") %>
+  </button>
+</div>

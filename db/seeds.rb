@@ -2,8 +2,8 @@
 
 # The one super_admin comes from ENV so no credentials are committed;
 # set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD before seeding.
-email = ENV["SUPER_ADMIN_EMAIL"]
-password = ENV["SUPER_ADMIN_PASSWORD"]
+email    = ENV["SUPER_ADMIN_EMAIL"]    || Rails.application.credentials.dig(:super_admin, :email)
+password = ENV["SUPER_ADMIN_PASSWORD"] || Rails.application.credentials.dig(:super_admin, :password)
 
 if email.present? && password.present?
   user = User.find_or_initialize_by(email_address: email)
